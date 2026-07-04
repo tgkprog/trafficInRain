@@ -8,7 +8,7 @@ export class Vehicle {
     
     // Physical properties from config
     const pixelScale = 3.5;
-    const speedScale = 0.5; // Speed multiplier
+    const speedScale = 0.69; // Speed multiplier (increased by 15%)
     this.width = (config.widthMeters || 2) * pixelScale;
     this.height = (config.lengthMeters || 4) * pixelScale;
     this.baseMaxSpeed = ((config.maxSpeedKmH || 40) * 1000) / 3600 * pixelScale * speedScale; // pixels/second

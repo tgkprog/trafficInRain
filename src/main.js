@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
   console.log('Vehicle spawner and rain renderer initialized.');
   console.log('Locations:', roadNetwork.getLocations().length);
   console.log('Roads:', roadNetwork.getRoads().length);
-  console.log('Spawn rate: Max', vehicleSpawner.maxSpawnsPer5Sec, 'vehicles per 5 seconds');
+  console.log('Spawn rate: Max', vehicleSpawner.maxSpawnsPer10Sec, 'vehicles per 10 seconds');
   console.log('Vehicle limit: REMOVED - total on roads depends on journey times and speed');
 
   // Live HUD status indicator helper
@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
         Physics Engine Active - Vehicles Spawning
       </div>
       <div style="color: var(--text-muted); font-size: 0.72rem; text-align: center; margin-top: 4px;">
-        Max ${vehicleSpawner.maxSpawnsPer5Sec} spawns/5sec • No hard vehicle limit
+        Max ${vehicleSpawner.maxSpawnsPer10Sec} spawns/10sec • No hard vehicle limit
       </div>
     `;
   }
@@ -170,8 +170,8 @@ function updateCongestionIndicator(stats) {
   
   // Congestion is ONLY based on number of vehicles on road
   // NOT based on speed - speed changes instantly, vehicles accumulate over time
-  // Ideal: 8 vehicles/5sec in clear weather = ~16-20 vehicles on road = 50% congestion
-  const idealVehiclesForMediumCongestion = 32; // 50% congestion baseline
+  // Ideal: 4 vehicles/10sec in clear weather = ~8-10 vehicles on road = 50% congestion
+  const idealVehiclesForMediumCongestion = 16; // 50% congestion baseline
   const vehicleDensity = stats.activeVehicles / idealVehiclesForMediumCongestion;
   
   // Convert to percentage (cap at 100%)
@@ -225,10 +225,10 @@ function updateHUDDemo(mode) {
 
 // Expose controls to global scope for console access
 window.trafficSimControls = {
-  setSpawnRate: (maxPer5Sec) => {
+  setSpawnRate: (maxPer10Sec) => {
     if (vehicleSpawner) {
-      vehicleSpawner.setMaxSpawnsPer5Sec(maxPer5Sec);
-      console.log(`✓ Spawn rate updated to ${maxPer5Sec} vehicles per 5 seconds`);
+      vehicleSpawner.setMaxSpawnsPer10Sec(maxPer10Sec);
+      console.log(`✓ Spawn rate updated to ${maxPer10Sec} vehicles per 10 seconds`);
     }
   },
   setSpawnInterval: (minMs, maxMs) => {
@@ -253,7 +253,7 @@ window.trafficSimControls = {
 };
 
 console.log('🎮 Traffic Simulation Controls Available:');
-console.log('  trafficSimControls.setSpawnRate(maxPer5Sec) - Set max spawns per 5 seconds');
+console.log('  trafficSimControls.setSpawnRate(maxPer10Sec) - Set max spawns per 10 seconds');
 console.log('  trafficSimControls.setSpawnInterval(minMs, maxMs) - Set spawn interval range');
 console.log('  trafficSimControls.getStats() - Get current statistics');
 console.log('  trafficSimControls.clearVehicles() - Clear all vehicles');
@@ -271,7 +271,7 @@ function setupControlPanel() {
     
     const stats = vehicleSpawner.getStats();
     
-    document.getElementById('display-spawn-rate').textContent = vehicleSpawner.maxSpawnsPer5Sec;
+    document.getElementById('display-spawn-rate').textContent = vehicleSpawner.maxSpawnsPer10Sec;
     document.getElementById('display-spawn-interval').textContent = 
       `${vehicleSpawner.spawnRateMin}-${vehicleSpawner.spawnRateMax}`;
     document.getElementById('display-active-vehicles').textContent = stats.activeVehicles;
@@ -315,12 +315,12 @@ function setupControlPanel() {
   // Reset button
   if (btnReset) {
     btnReset.addEventListener('click', () => {
-      document.getElementById('input-spawn-rate').value = 8;
-      document.getElementById('input-spawn-min').value = 500;
-      document.getElementById('input-spawn-max').value = 1200;
+      document.getElementById('input-spawn-rate').value = 4;
+      document.getElementById('input-spawn-min').value = 300;
+      document.getElementById('input-spawn-max').value = 800;
       
-      window.trafficSimControls.setSpawnRate(8);
-      window.trafficSimControls.setSpawnInterval(500, 1200);
+      window.trafficSimControls.setSpawnRate(4);
+      window.trafficSimControls.setSpawnInterval(300, 800);
       
       updateDisplayValues();
     });

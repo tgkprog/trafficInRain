@@ -78,8 +78,8 @@
     },
     {
       "id": "access_kumar_samrudhi",
-      "name": "Access Road to Kumar Samrudhi (130m WEST)",
-      "from": "kumar_junction",
+      "name": "Access Road to Kumar Samrudhi (150m WEST)",
+      "from": "kumar_samrudhi_junction",
       "to": "kumar_samrudhi",
       "widthMeters": 6,
       "widthClass": "narrow",
@@ -87,9 +87,9 @@
       "speedLimit": 25,
       "bidirectional": true,
       "waypoints": [
-        {"x": 550, "y": 950},
-        {"x": 485, "y": 950},
-        {"x": 420, "y": 950}
+        {"x": 550, "y": 750},
+        {"x": 475, "y": 750},
+        {"x": 400, "y": 750}
       ],
       "widthPixels": 24,
       "isAccessRoad": true
@@ -114,8 +114,8 @@
     {
       "id": "tingre_nagar_surabhi_junction",
       "name": "Tingre Nagar Road to Surabhi Junction",
-      "from": "kumar_samrudhi",
-      "to": "surabhi_junction",
+      "from": "kumar_junction",
+      "to": "kumar_samrudhi_junction",
       "widthMeters": 7,
       "widthClass": "medium",
       "lanes": 2,
@@ -123,7 +123,24 @@
       "bidirectional": true,
       "waypoints": [
         {"x": 550, "y": 950},
-        {"x": 550, "y": 800},
+        {"x": 550, "y": 850},
+        {"x": 550, "y": 750}
+      ],
+      "widthPixels": 28
+    },
+    {
+      "id": "kumar_samrudhi_to_surabhi",
+      "name": "Tingre Nagar Road (Kumar to Surabhi)",
+      "from": "kumar_samrudhi_junction",
+      "to": "surabhi_junction",
+      "widthMeters": 7,
+      "widthClass": "medium",
+      "lanes": 2,
+      "speedLimit": 40,
+      "bidirectional": true,
+      "waypoints": [
+        {"x": 550, "y": 750},
+        {"x": 550, "y": 700},
         {"x": 550, "y": 650}
       ],
       "widthPixels": 28

@@ -19,7 +19,7 @@ This simulation aims to show why traffic slows down during rain (as observed in 
 - ✅ **12 Vehicle Types**: Cars, SUVs, motorcycles, buses, trucks, auto-rickshaws, cycles, and pedestrians
 - ✅ **Waypoint Navigation**: Direct vehicle movement along predefined paths
 - ✅ **Pathfinding**: BFS-based routing between locations
-- ✅ **Dynamic Spawning**: Rate-limited spawning (max 8 vehicles per 5 seconds)
+- ✅ **Dynamic Spawning**: Rate-limited spawning (max 4 vehicles per 10 seconds)
 - ✅ **Smooth Animation**: 60 FPS rendering with requestAnimationFrame
 - ✅ **Weather System**: Rain particle rendering with 150-400 animated drops
 - ✅ **Speed Modifiers**: Weather-based speed changes (Clear 100%, Light 80%, Heavy 50%)
@@ -93,8 +93,8 @@ Open your browser to the address shown (usually `http://localhost:5173`)
    - **Light Rain**: Moderate speed reduction
    - **Heavy Rain**: Severe slowdown and congestion buildup
 4. **Scroll down** to access the Control Panel:
-   - Adjust spawn rate (vehicles per 5 seconds)
-   - Modify spawn intervals
+   - Adjust spawn rate (vehicles per 10 seconds)
+   - Modify spawn intervals (300-800ms)
    - Clear all vehicles
    - View real-time statistics
 5. Observe how traffic patterns change with different weather states
@@ -148,7 +148,7 @@ The simulation runs on a standard game loop with weather-aware dynamics:
 - **Main Loop**: ~60 FPS via `requestAnimationFrame()`
 - **Delta Time**: Calculated each frame for smooth interpolation
 - **Vehicle Updates**: Position updated every frame with traffic awareness
-- **Spawn Control**: Rate-limited to max 8 vehicles per 5-second window (default)
+- **Spawn Control**: Rate-limited to max 4 vehicles per 10-second window (default)
 - **Rain Particles**: 150 (light) to 400 (heavy) animated drops
 - **Lane Positioning**: 8-pixel left offset from road centerline
 - **No Hard Vehicle Limit**: Vehicles accumulate based on journey times
@@ -157,11 +157,11 @@ The simulation runs on a standard game loop with weather-aware dynamics:
 
 | Condition | Speed Factor | Avg Speed (base 50 km/h) | Journey Time | Vehicles on Road |
 |-----------|--------------|--------------------------|--------------|------------------|
-| Clear     | 100% (1.0)   | 50 km/h                 | 2 minutes    | ~20 vehicles     |
-| Light Rain | 80% (0.8)   | 40 km/h                 | 2.5 minutes  | ~25 vehicles     |
-| Heavy Rain | 50% (0.5)   | 25 km/h                 | 4 minutes    | ~40 vehicles     |
+| Clear     | 115% (1.15)  | 57.5 km/h               | 1.7 minutes  | ~10 vehicles     |
+| Light Rain | 92% (0.92)  | 46 km/h                 | 2.2 minutes  | ~13 vehicles     |
+| Heavy Rain | 57.5% (0.575)| 28.75 km/h             | 3.5 minutes  | ~20 vehicles     |
 
-*Same spawn rate produces different accumulation due to variable journey times*
+*Same spawn rate (4 per 10 sec) produces different accumulation due to variable journey times. Speed increased 15% from previous baseline.*
 
 ### Vehicle Behavior
 
@@ -229,9 +229,9 @@ Each vehicle type includes:
 
 ### Spawn Settings
 ```javascript
-spawnRateMin: 500,           // Minimum ms between spawns
-spawnRateMax: 1200,          // Maximum ms between spawns
-maxSpawnsPer5Sec: 8,         // Rate limit (no hard vehicle cap)
+spawnRateMin: 300,           // Minimum ms between spawns
+spawnRateMax: 800,           // Maximum ms between spawns
+maxSpawnsPer10Sec: 4,        // Rate limit (no hard vehicle cap)
 // Total vehicles on road = spawn rate × average journey time
 ```
 

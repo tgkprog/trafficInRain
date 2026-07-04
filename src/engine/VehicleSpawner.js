@@ -12,9 +12,9 @@ export class VehicleSpawner {
     this.pathPlanner = new PathPlanner(roadNetwork);
     
     // Spawn configuration
-    this.spawnRateMin = 500;  // Min interval between spawns (ms)
-    this.spawnRateMax = 1200; // Max interval between spawns (ms)
-    this.maxSpawnsPer5Sec = 8; // Maximum vehicles to spawn in any 5-second window
+    this.spawnRateMin = 300;  // Min interval between spawns (ms)
+    this.spawnRateMax = 800; // Max interval between spawns (ms)
+    this.maxSpawnsPer10Sec = 4; // Maximum vehicles to spawn in any 10-second window
     this.spawnHistory = []; // Track recent spawns for rate limiting
     this.nextSpawnTime = 0;
     this.lastSpawnTime = 0;
@@ -83,14 +83,14 @@ export class VehicleSpawner {
     });
   }
   
-  // Check if we can spawn based on 5-second rate limit
+  // Check if we can spawn based on 10-second rate limit
   canSpawnVehicle(currentTime) {
-    // Clean up spawn history older than 5 seconds
-    const fiveSecondsAgo = currentTime - 5000;
-    this.spawnHistory = this.spawnHistory.filter(time => time > fiveSecondsAgo);
+    // Clean up spawn history older than 10 seconds
+    const tenSecondsAgo = currentTime - 10000;
+    this.spawnHistory = this.spawnHistory.filter(time => time > tenSecondsAgo);
     
     // Check if we're under the limit
-    return this.spawnHistory.length < this.maxSpawnsPer5Sec;
+    return this.spawnHistory.length < this.maxSpawnsPer10Sec;
   }
   
   // Get random spawn interval
@@ -207,10 +207,10 @@ export class VehicleSpawner {
     this.spawnRateMax = maxMs;
   }
   
-  // Set maximum spawns per 5 seconds
-  setMaxSpawnsPer5Sec(max) {
-    this.maxSpawnsPer5Sec = max;
-    console.log(`Spawn rate limit set to ${max} vehicles per 5 seconds`);
+  // Set maximum spawns per 10 seconds
+  setMaxSpawnsPer10Sec(max) {
+    this.maxSpawnsPer10Sec = max;
+    console.log(`Spawn rate limit set to ${max} vehicles per 10 seconds`);
   }
 
   // Clear all vehicles
