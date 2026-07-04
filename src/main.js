@@ -141,7 +141,31 @@ function setupWeatherButtons() {
 function updateHUDStats() {
   const stats = vehicleSpawner.getStats();
   
-  // Update vehicle count display
+  // Update Live Metrics - Active Vehicles
+  const activeCountEl = document.getElementById('val-active-count');
+  if (activeCountEl) {
+    activeCountEl.textContent = stats.activeVehicles;
+  }
+  
+  // Update Live Metrics - Avg Speed
+  const avgSpeedEl = document.getElementById('val-avg-speed');
+  if (avgSpeedEl) {
+    avgSpeedEl.innerHTML = `${stats.avgSpeedKmH} <span class="unit">km/h</span>`;
+  }
+  
+  // Update Live Metrics - Completed Trips
+  const completedTripsEl = document.getElementById('val-completed-trips');
+  if (completedTripsEl) {
+    completedTripsEl.textContent = stats.completedTrips;
+  }
+  
+  // Update Live Metrics - Flow Rate (vehicles per minute)
+  const flowRateEl = document.getElementById('val-flow-rate');
+  if (flowRateEl) {
+    flowRateEl.innerHTML = `${stats.flowRate} <span class="unit">v/min</span>`;
+  }
+  
+  // Update Vehicle Breakdown display
   const breakdownList = document.getElementById('vehicle-breakdown-list');
   if (breakdownList) {
     breakdownList.innerHTML = `
@@ -154,12 +178,6 @@ function updateHUDStats() {
         <span style="color: var(--text-secondary); font-weight: 500; font-size: 0.75rem;">${stats.totalSpawned}</span>
       </div>
     `;
-  }
-  
-  // Update average speed display
-  const avgSpeed = document.getElementById('val-avg-speed');
-  if (avgSpeed && stats.avgSpeedKmH > 0) {
-    avgSpeed.innerHTML = `${stats.avgSpeedKmH} <span class="unit">km/h</span>`;
   }
   
   // Update congestion based on actual data
@@ -354,11 +372,11 @@ function setupControlPanel() {
   if (btnReset) {
     btnReset.addEventListener('click', () => {
       document.getElementById('input-spawn-rate').value = 15;
-      document.getElementById('input-spawn-min').value = 300;
-      document.getElementById('input-spawn-max').value = 800;
+      document.getElementById('input-spawn-min').value = 500;
+      document.getElementById('input-spawn-max').value = 1200;
       
       window.trafficSimControls.setSpawnRate(15);
-      window.trafficSimControls.setSpawnInterval(300, 800);
+      window.trafficSimControls.setSpawnInterval(500, 1200);
       
       updateDisplayValues();
     });

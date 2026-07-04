@@ -12,12 +12,16 @@ export class VehicleSpawner {
     this.pathPlanner = new PathPlanner(roadNetwork);
     
     // Spawn configuration
-    this.spawnRateMin = 300;  // Min interval between spawns (ms)
-    this.spawnRateMax = 800; // Max interval between spawns (ms)
+    this.spawnRateMin = 500;  // Min interval between spawns (ms)
+    this.spawnRateMax = 1200; // Max interval between spawns (ms)
     this.maxSpawnsPer10Sec = 15; // Maximum vehicles to spawn in any 10-second window
     this.spawnHistory = []; // Track recent spawns for rate limiting
     this.nextSpawnTime = 0;
     this.lastSpawnTime = 0;
+    
+    // Statistics tracking
+    this.completedTrips = 0;
+    this.completedTripsHistory = []; // Track completed trips for flow rate calculation
     
     // Weather state
     this.weatherState = 'none';
@@ -146,8 +150,17 @@ export class VehicleSpawner {
     this.vehicles.forEach(vehicle => {
       if (vehicle.isActive) {
         vehicle.update(deltaMs, this.vehicles);
+      } else if (!vehicle.tripCounted) {
+        // Vehicle just became inactive - count as completed trip
+        this.completedTrips++;
+        this.completedTripsHistory.push(currentTime);
+        vehicle.tripCounted = true;
       }
     });
+    
+    // Clean up completed trips history older than 1 minute for flow rate calculation
+    const oneMinuteAgo = currentTime - 60000;
+    this.completedTripsHistory = this.completedTripsHistory.filter(time => time > oneMinuteAgo);
     
     // Remove inactive vehicles
     this.removeInactiveVehicles();
@@ -220,14 +233,21 @@ export class VehicleSpawner {
     
     const avgSpeed = activeCount > 0 ? totalSpeed / activeCount : 0;
     
-    // Convert from pixels/sec to km/h (approximate, using pixelScale)
+    // Convert from pixels/sec to km/h (must match Vehicle.js calculation)
+    // In Vehicle.js: baseMaxSpeed = ((maxSpeedKmH * 1000) / 3600) * pixelScale * speedScale
+    // So: maxSpeedKmH = (baseMaxSpeed / (pixelScale * speedScale)) * 3.6
     const pixelScale = 3.5;
-    const speedScale = 0.5;
+    const speedScale = 0.69; // Must match Vehicle.js speedScale
     const avgSpeedKmH = (avgSpeed / (pixelScale * speedScale)) * 3.6;
+    
+    // Calculate flow rate (completed trips per minute)
+    const flowRate = this.completedTripsHistory.length;
     
     return {
       activeVehicles: this.vehicles.length,
       totalSpawned: this.nextVehicleId - 1,
+      completedTrips: this.completedTrips,
+      flowRate: flowRate,
       avgSpeed: avgSpeed,
       avgSpeedKmH: Math.round(avgSpeedKmH)
     };
@@ -252,5 +272,7 @@ export class VehicleSpawner {
     });
     this.vehicles = [];
     this.spawnHistory = [];
+    this.completedTrips = 0;
+    this.completedTripsHistory = [];
   }
 }

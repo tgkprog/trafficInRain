@@ -28,6 +28,7 @@ export class Vehicle {
     
     // Vehicle state
     this.isActive = true;
+    this.tripCounted = false; // Track if trip completion has been counted
     this.distanceTraveled = 0;
     this.currentSpeed = 0; // Track current speed for analytics
     this.travelTime = 0; // Track total travel time in ms
