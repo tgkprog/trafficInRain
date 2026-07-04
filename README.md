@@ -1,5 +1,7 @@
 # Traffic in Rain Simulation
 
+**🌐 Live Demo:** [https://tgkprog.github.io/trafficInRain/](https://tgkprog.github.io/trafficInRain/)
+
 A web-based traffic simulation demonstrating how rainfall affects traffic flow in Pune, India (Vishrantwadi & Viman Nagar area). This project visualizes the impact of weather conditions on vehicle movement and congestion patterns through an interactive 2D simulation.
 
 ## 🎯 Project Overview
