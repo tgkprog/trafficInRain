@@ -1,0 +1,23 @@
+{
+  "none": {
+    "roadFriction": 1,
+    "visibilityMeters": 1000,
+    "brakingDistanceMultiplier": 1,
+    "followingDistanceMultiplier": 1,
+    "waterloggingSlowdownFactor": 0
+  },
+  "light": {
+    "roadFriction": 0.7,
+    "visibilityMeters": 200,
+    "brakingDistanceMultiplier": 1.5,
+    "followingDistanceMultiplier": 1.4,
+    "waterloggingSlowdownFactor": 0.05
+  },
+  "heavy": {
+    "roadFriction": 0.4,
+    "visibilityMeters": 80,
+    "brakingDistanceMultiplier": 2.5,
+    "followingDistanceMultiplier": 2,
+    "waterloggingSlowdownFactor": 0.3
+  }
+}

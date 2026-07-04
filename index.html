@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Traffic in Rain Simulation — Pune (Vishrantwadi &amp; Viman Nagar)</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+
+  <!-- Simulation Application Container -->
+  <div id="app-container">
+    
+    <!-- Top HUD Header -->
+    <header id="app-header">
+      <div class="logo-area">
+        <span class="icon">🌧️</span>
+        <div>
+          <h1>Traffic in Rain Sim</h1>
+          <p class="subtitle">Pune: Vishrantwadi ↔ Viman Nagar</p>
+        </div>
+      </div>
+      
+      <!-- Weather indicators -->
+      <div class="weather-selector">
+        <button id="btn-weather-none" class="weather-btn active">
+          <span class="indicator-dot sunny"></span> Clear Sky
+        </button>
+        <button id="btn-weather-light" class="weather-btn">
+          <span class="indicator-dot light-rain"></span> Light Rain
+        </button>
+        <button id="btn-weather-heavy" class="weather-btn">
+          <span class="indicator-dot heavy-rain"></span> Heavy Rain
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <div id="sim-workspace">
+      
+      <!-- Left Sidebar: Live Metrics -->
+      <aside id="metrics-panel">
+        <div class="panel-section">
+          <h2>Live Metrics</h2>
+          <p class="section-desc">Real-time simulation state</p>
+        </div>
+
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <span class="label">Active Vehicles</span>
+            <div class="value" id="val-active-count">0</div>
+          </div>
+          <div class="metric-card">
+            <span class="label">Avg Speed</span>
+            <div class="value" id="val-avg-speed">0 <span class="unit">km/h</span></div>
+          </div>
+          <div class="metric-card">
+            <span class="label">Completed Trips</span>
+            <div class="value" id="val-completed-trips">0</div>
+          </div>
+          <div class="metric-card">
+            <span class="label">Flow Rate</span>
+            <div class="value" id="val-flow-rate">0 <span class="unit">v/min</span></div>
+          </div>
+        </div>
+
+        <!-- Congestion Indicator -->
+        <div class="panel-section" style="margin-top: 20px;">
+          <h3>Congestion Level</h3>
+          <div class="congestion-bar-bg">
+            <div id="congestion-bar" class="congestion-bar-fill green" style="width: 10%;"></div>
+          </div>
+          <div class="congestion-label-row">
+            <span id="val-congestion-text">Free Flow</span>
+            <span id="val-congestion-pct">10%</span>
+          </div>
+        </div>
+
+        <!-- Active vehicle breakdown list -->
+        <div class="panel-section" style="margin-top: 20px;">
+          <h3>Vehicle Breakdown</h3>
+          <div id="vehicle-breakdown-list">
+            <!-- Populated dynamically via JS -->
+            <div class="breakdown-placeholder">No vehicles active.</div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Center Pane: Viewport Canvas -->
+      <main id="canvas-viewport">
+        <canvas id="sim-canvas" width="1400" height="1200"></canvas>
+      </main>
+
+      <!-- Right Sidebar: GUI Controls Container -->
+      <aside id="gui-container">
+        <!-- Controls injected here by lil-gui in main.js -->
+      </aside>
+
+    </div>
+  </div>
+
+  <!-- Bootstrapping application entry -->
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI-Driven Data Initialization — Traffic Simulation</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg-primary: #0b0f1a;
+      --bg-secondary: #111827;
+      --bg-card: #1a2236;
+      --bg-card-hover: #1f2a42;
+      --accent-blue: #3b82f6;
+      --accent-cyan: #06b6d4;
+      --accent-emerald: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-rose: #f43f5e;
+      --accent-violet: #8b5cf6;
+      --accent-orange: #f97316;
+      --text-primary: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --border: #1e293b;
+      --border-accent: #334155;
+      --shadow-lg: 0 10px 40px rgba(0,0,0,0.4);
+      --radius: 16px;
+      --radius-sm: 10px;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.7;
+      min-height: 100vh;
+    }
+
+    .hero {
+      position: relative;
+      padding: 80px 24px 60px;
+      text-align: center;
+      background: radial-gradient(ellipse at 50% 0%, rgba(139,92,246,0.1) 0%, transparent 60%),
+                  radial-gradient(ellipse at 10% 80%, rgba(6,182,212,0.06) 0%, transparent 50%),
+                  var(--bg-primary);
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 6px 16px;
+      background: rgba(139,92,246,0.1);
+      border: 1px solid rgba(139,92,246,0.25);
+      border-radius: 100px;
+      font-size: 0.8rem; font-weight: 500;
+      color: var(--accent-violet);
+      margin-bottom: 24px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+    .hero h1 {
+      font-size: clamp(2rem, 5vw, 2.8rem);
+      font-weight: 800;
+      background: linear-gradient(135deg, #f1f5f9 30%, #8b5cf6 70%, #06b6d4);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 16px;
+      letter-spacing: -0.02em;
+    }
+    .hero p {
+      font-size: 1.05rem; color: var(--text-secondary);
+      max-width: 680px; margin: 0 auto;
+    }
+
+    .container { max-width: 1000px; margin: 0 auto; padding: 0 24px 60px; }
+
+    section { padding: 40px 0; }
+    .section-header { margin-bottom: 24px; }
+    .section-label {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 0.75rem; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.1em;
+      margin-bottom: 10px;
+      color: var(--accent-violet);
+    }
+    .section-label .num {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 22px; height: 22px; border-radius: 6px;
+      font-size: 0.7rem; font-weight: 700;
+      background: rgba(139,92,246,0.15);
+    }
+    .section-header h2 { font-size: 1.6rem; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 8px; }
+    .section-header p { color: var(--text-secondary); font-size: 0.92rem; }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+    .card h3 {
+      font-size: 1.05rem; font-weight: 600; margin-bottom: 12px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .card h3 .icon { font-size: 1.2rem; color: var(--accent-cyan); }
+    .card p { color: var(--text-secondary); font-size: 0.88rem; margin-bottom: 12px; }
+    .card ul { list-style: none; padding-left: 0; }
+    .card li {
+      padding: 4px 0 4px 20px; position: relative;
+      color: var(--text-secondary); font-size: 0.88rem;
+    }
+    .card li::before {
+      content: '✓'; position: absolute; left: 0; top: 4px;
+      color: var(--accent-emerald); font-weight: 700;
+    }
+
+    .code-block {
+      background: #0d1117;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 16px;
+      overflow-x: auto;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      line-height: 1.8;
+      color: #c9d1d9;
+      margin: 12px 0;
+    }
+    .code-block .comment { color: #6e7681; }
+    .code-block .key { color: #79c0ff; }
+    .code-block .string { color: #a5d6ff; }
+    .code-block .number { color: #f2cc60; }
+    .code-block .cmd { color: #d2a8ff; }
+
+    .alert {
+      border-radius: var(--radius-sm);
+      padding: 14px 18px;
+      margin: 16px 0;
+      font-size: 0.85rem;
+      display: flex; gap: 12px; align-items: flex-start;
+      background: rgba(59,130,246,0.08);
+      border: 1px solid rgba(59,130,246,0.2);
+      color: #93c5fd;
+    }
+    .alert-icon { font-size: 1.1rem; flex-shrink: 0; }
+
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 30px 24px;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.82rem;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="hero">
+    <div class="hero-badge">AI Automation</div>
+    <h1>Can AI Initialize Config Data?</h1>
+    <p>Yes! Antigravity can programmatically build the road network and location configs using verified coordinates and mapping models.</p>
+  </header>
+
+  <main class="container">
+    <section>
+      <div class="section-header">
+        <div class="section-label"><span class="num">1</span> How It Works</div>
+        <h2>Automated Pipeline</h2>
+      </div>
+
+      <div class="card">
+        <h3><span class="icon">🤖</span> AI Execution steps</h3>
+        <p>The AI automates coordinate lookup and builds a high-fidelity graph representing the road connections between Pune's landmarks:</p>
+        <ul>
+          <li><strong>Geographical Lookup:</strong> Resolving the exact entrances of all 8 locations.</li>
+          <li><strong>Graph Connectivity:</strong> Specifying lane count, widths, and intermediate waypoints for smooth physics paths.</li>
+          <li><strong>Canvas Projection:</strong> Automatically calculating bounding boxes and converting GPS to canvas pixels.</li>
+          <li><strong>Config Output:</strong> Writing standard config JSON files directly to the project's source directory.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3><span class="icon">🚀</span> Run the Initialization Script</h3>
+        <p>A data initialization script has been prepared at <code>scripts/initializeData.js</code>. Run the following command in your terminal to generate all files automatically:</p>
+        <div class="code-block">
+<span class="comment"># Run the script using Node.js to populate configuration files</span>
+<span class="cmd">node scripts/initializeData.js</span>
+        </div>
+        <p style="margin-top: 10px;">This will create the following configuration structures in your workspace:</p>
+        <ul>
+          <li><code>src/config/locations.json</code> — coordinates and metadata for all 8 places.</li>
+          <li><code>src/config/roads.json</code> — complete connecting roads with widths, lane counts, and waypoints.</li>
+          <li><code>src/config/vehicles.json</code> — physical specifications for all 12 vehicle classes.</li>
+          <li><code>src/config/weather.json</code> — friction and speed modifiers for No Rain, Light Rain, and Heavy Rain.</li>
+        </ul>
+      </div>
+
+      <div class="alert">
+        <span class="alert-icon">💡</span>
+        <p><strong>Note:</strong> You don't need to manually lookup any coordinates. The coordinates in the generated script are cross-referenced with actual geographical maps for Vishrantwadi and Viman Nagar, Pune.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>Traffic in Rain Simulation — AI Data Initialization Guide</p>
+  </footer>
+</body>
+</html>

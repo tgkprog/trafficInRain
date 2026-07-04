@@ -1,0 +1,177 @@
+{
+  "bounds": {
+    "minLat": 18.5552,
+    "maxLat": 18.5942,
+    "minLng": 73.87349999999999,
+    "maxLng": 73.918
+  },
+  "edges": [
+    {
+      "id": "alandi_road",
+      "name": "Alandi Road",
+      "from": "laxmi_township",
+      "to": "planet_medical",
+      "widthMeters": 12,
+      "widthClass": "wide",
+      "lanes": 4,
+      "speedLimit": 50,
+      "bidirectional": true,
+      "waypoints": [
+        {"x": 200, "y": 450},
+        {"x": 200, "y": 700},
+        {"x": 200, "y": 950}
+      ],
+      "widthPixels": 48
+    },
+    {
+      "id": "airport_road_west",
+      "name": "Airport Road (Planet Medical to Junction)",
+      "from": "planet_medical",
+      "to": "kumar_junction",
+      "widthMeters": 14,
+      "widthClass": "wide",
+      "lanes": 4,
+      "speedLimit": 50,
+      "bidirectional": true,
+      "waypoints": [
+        {"x": 200, "y": 950},
+        {"x": 375, "y": 950},
+        {"x": 550, "y": 950}
+      ],
+      "widthPixels": 56
+    },
+    {
+      "id": "airport_road_center",
+      "name": "Airport Road (Junction to Momo Hub)",
+      "from": "kumar_junction",
+      "to": "momo_hub",
+      "widthMeters": 12,
+      "widthClass": "wide",
+      "lanes": 4,
+      "speedLimit": 50,
+      "bidirectional": true,
+      "waypoints": [
+        {"x": 550, "y": 950},
+        {"x": 775, "y": 950},
+        {"x": 1000, "y": 950}
+      ],
+      "widthPixels": 48
+    },
+    {
+      "id": "sub_road_to_kumar",
+      "name": "Sub Road to Kumar Samrudhi (LEFT from Airport Rd)",
+      "from": "kumar_junction",
+      "to": "kumar_samrudhi",
+      "widthMeters": 5,
+      "widthClass": "narrow",
+      "lanes": 1,
+      "speedLimit": 30,
+      "bidirectional": true,
+      "waypoints": [
+        {"x": 550, "y": 950},
+        {"x": 550, "y": 893}
+      ],
+      "widthPixels": 20
+    },
+    {
+      "id": "sub_road_to_surabhi",
+      "name": "Sub Road Kumar to Surabhi",
+      "from": "kumar_samrudhi",
+      "to": "surabhi_d_block",
+      "widthMeters": 5,
+      "widthClass": "narrow",
+      "lanes": 1,
+      "speedLimit": 30,
+      "bidirectional": true,
+      "waypoints": [
+        {"x": 550, "y": 893},
+        {"x": 550, "y": 779}
+      ],
+      "widthPixels": 20
+    },
+    {
+      "id": "tingre_nagar_road_wide",
+      "name": "Tingre Nagar Road (Wide Section 2 buses)",
+      "from": "surabhi_d_block",
+      "to": "neuron_approach",
+      "widthMeters": 7,
+      "widthClass": "medium",
+      "lanes": 2,
+      "speedLimit": 40,
+      "bidirectional": true,
+      "waypoints": [
+        {"x": 550, "y": 779},
+        {"x": 550, "y": 600},
+        {"x": 550, "y": 400},
+        {"x": 550, "y": 250}
+      ],
+      "widthPixels": 28
+    },
+    {
+      "id": "tingre_nagar_road_narrow",
+      "name": "Tingre Nagar Road (Narrow near Neuron - 1 bus + 1 car)",
+      "from": "neuron_approach",
+      "to": "neuron_school",
+      "widthMeters": 5,
+      "widthClass": "narrow",
+      "lanes": 1,
+      "speedLimit": 30,
+      "bidirectional": true,
+      "waypoints": [
+        {"x": 550, "y": 250},
+        {"x": 550, "y": 36}
+      ],
+      "widthPixels": 20
+    },
+    {
+      "id": "momo_to_aero_turn",
+      "name": "Momo Hub Turn to Aero Mall Road",
+      "from": "momo_hub",
+      "to": "aero_mall_junction",
+      "widthMeters": 12,
+      "widthClass": "wide",
+      "lanes": 4,
+      "speedLimit": 45,
+      "bidirectional": true,
+      "waypoints": [
+        {"x": 1000, "y": 950},
+        {"x": 1100, "y": 950},
+        {"x": 1200, "y": 1000}
+      ],
+      "widthPixels": 48
+    },
+    {
+      "id": "aero_mall_approach",
+      "name": "Aero Mall Approach (450m south)",
+      "from": "aero_mall_junction",
+      "to": "aero_mall",
+      "widthMeters": 12,
+      "widthClass": "wide",
+      "lanes": 3,
+      "speedLimit": 40,
+      "bidirectional": true,
+      "waypoints": [
+        {"x": 1200, "y": 1000},
+        {"x": 1250, "y": 1079}
+      ],
+      "widthPixels": 48
+    },
+    {
+      "id": "vibgyor_connector",
+      "name": "Vibgyor School Access (RIGHT from Airport Rd)",
+      "from": "momo_hub",
+      "to": "vibgyor_yerwada",
+      "widthMeters": 8,
+      "widthClass": "medium",
+      "lanes": 2,
+      "speedLimit": 40,
+      "bidirectional": true,
+      "waypoints": [
+        {"x": 1000, "y": 950},
+        {"x": 900, "y": 1020},
+        {"x": 800, "y": 1093}
+      ],
+      "widthPixels": 32
+    }
+  ]
+}

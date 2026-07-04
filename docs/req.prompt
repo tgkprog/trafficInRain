@@ -1,0 +1,14 @@
+Aim : show a simulation of traffic originating and going to 7 places, with no rain, light rain and heavy rain
+to show why traffic slows down (as observed in Bangalore and Pune)during rains.
+
+Solution to be in a web page.
+Can make a nodejs front end project with a physics engine. We want to model pedestrians, cycles, three wheeler autos, cars, 4 wheel smaller trucks, 6 wheel trucks, 10 seater matador vans, small luggage autos, small, medium and marge buses, and small 3 wheelers for disabled.
+
+Create a plan for this suggesting nodejs project, physics engine, config for type of user/ vehiecle, locations,
+routes, can focus on a small area in Vishrantwadi and Viman nagar Pune.
+
+Places can be D block Surabhi township, Aero mall (entrance facing airport), Vibgyour Yerwda school, Planet medical, Momo hub,
+A7 Kumar Samrudhi flats, Laxmi township 3 Kalas and Neuron school.
+
+Show roads connecting them, with some places where 4 buses can fit, and other just a bus and a car can pass at a time.
+

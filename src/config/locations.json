@@ -1,0 +1,90 @@
+[
+  {
+    "id": "planet_medical",
+    "name": "Planet Medical",
+    "type": "commercial",
+    "lat": 18.5726,
+    "lng": 73.8782,
+    "spawnRate": 0.7,
+    "attractionWeight": 1,
+    "x": 200,
+    "y": 950
+  },
+  {
+    "id": "laxmi_township",
+    "name": "Laxmi Township 3 Kalas",
+    "type": "residential",
+    "lat": 18.5912,
+    "lng": 73.8765,
+    "spawnRate": 0.6,
+    "attractionWeight": 0.8,
+    "x": 200,
+    "y": 450
+  },
+  {
+    "id": "kumar_samrudhi",
+    "name": "Kumar Samrudhi Flats",
+    "type": "residential",
+    "lat": 18.5752,
+    "lng": 73.886,
+    "spawnRate": 0.8,
+    "attractionWeight": 1,
+    "x": 550,
+    "y": 893
+  },
+  {
+    "id": "surabhi_d_block",
+    "name": "Surabhi Township",
+    "type": "residential",
+    "lat": 18.5735,
+    "lng": 73.8965,
+    "spawnRate": 0.8,
+    "attractionWeight": 1,
+    "x": 550,
+    "y": 779
+  },
+  {
+    "id": "neuron_school",
+    "name": "Neuron School",
+    "type": "school",
+    "lat": 18.5753,
+    "lng": 73.8936,
+    "spawnRate": 1,
+    "attractionWeight": 1.5,
+    "x": 550,
+    "y": 36
+  },
+  {
+    "id": "momo_hub",
+    "name": "Momo Hub",
+    "type": "commercial",
+    "lat": 18.5704,
+    "lng": 73.9023,
+    "spawnRate": 0.9,
+    "attractionWeight": 1.2,
+    "x": 1000,
+    "y": 950
+  },
+  {
+    "id": "aero_mall",
+    "name": "Aero Mall",
+    "type": "commercial",
+    "lat": 18.5714,
+    "lng": 73.915,
+    "spawnRate": 1.2,
+    "attractionWeight": 2,
+    "x": 1250,
+    "y": 1079
+  },
+  {
+    "id": "vibgyor_yerwada",
+    "name": "Vibgyor School",
+    "type": "school",
+    "lat": 18.5582,
+    "lng": 73.9054,
+    "spawnRate": 1,
+    "attractionWeight": 1.5,
+    "x": 800,
+    "y": 1093
+  }
+]

@@ -1,0 +1,230 @@
+{
+  "pedestrian": {
+    "label": "Pedestrian",
+    "widthMeters": 0.5,
+    "lengthMeters": 0.5,
+    "maxSpeedKmH": 5,
+    "acceleration": 1.5,
+    "color": "#a78bfa",
+    "spawnWeight": 10,
+    "rainModifiers": {
+      "light": {
+        "speedFactor": 0.7,
+        "spawnFactor": 0.5
+      },
+      "heavy": {
+        "speedFactor": 0.4,
+        "spawnFactor": 0.15
+      }
+    }
+  },
+  "cycle": {
+    "label": "Cycle",
+    "widthMeters": 0.6,
+    "lengthMeters": 1.8,
+    "maxSpeedKmH": 18,
+    "acceleration": 2,
+    "color": "#34d399",
+    "spawnWeight": 8,
+    "rainModifiers": {
+      "light": {
+        "speedFactor": 0.75,
+        "spawnFactor": 0.4
+      },
+      "heavy": {
+        "speedFactor": 0.5,
+        "spawnFactor": 0.1
+      }
+    }
+  },
+  "auto": {
+    "label": "Three Wheeler Auto",
+    "widthMeters": 1.4,
+    "lengthMeters": 2.6,
+    "maxSpeedKmH": 40,
+    "acceleration": 2.5,
+    "color": "#fbbf24",
+    "spawnWeight": 15,
+    "rainModifiers": {
+      "light": {
+        "speedFactor": 0.85,
+        "spawnFactor": 1.1
+      },
+      "heavy": {
+        "speedFactor": 0.65,
+        "spawnFactor": 0.8
+      }
+    }
+  },
+  "car": {
+    "label": "Car",
+    "widthMeters": 1.8,
+    "lengthMeters": 4.2,
+    "maxSpeedKmH": 50,
+    "acceleration": 3,
+    "color": "#60a5fa",
+    "spawnWeight": 20,
+    "rainModifiers": {
+      "light": {
+        "speedFactor": 0.9,
+        "spawnFactor": 1.2
+      },
+      "heavy": {
+        "speedFactor": 0.75,
+        "spawnFactor": 1
+      }
+    }
+  },
+  "small_truck": {
+    "label": "Small Truck (4W)",
+    "widthMeters": 2,
+    "lengthMeters": 5,
+    "maxSpeedKmH": 40,
+    "acceleration": 1.8,
+    "color": "#fb923c",
+    "spawnWeight": 6,
+    "rainModifiers": {
+      "light": {
+        "speedFactor": 0.88,
+        "spawnFactor": 0.9
+      },
+      "heavy": {
+        "speedFactor": 0.7,
+        "spawnFactor": 0.6
+      }
+    }
+  },
+  "large_truck": {
+    "label": "Large Truck (6W)",
+    "widthMeters": 2.5,
+    "lengthMeters": 7.5,
+    "maxSpeedKmH": 35,
+    "acceleration": 1.2,
+    "color": "#f87171",
+    "spawnWeight": 3,
+    "rainModifiers": {
+      "light": {
+        "speedFactor": 0.9,
+        "spawnFactor": 0.8
+      },
+      "heavy": {
+        "speedFactor": 0.75,
+        "spawnFactor": 0.5
+      }
+    }
+  },
+  "matador": {
+    "label": "Matador Van (10 seater)",
+    "widthMeters": 2,
+    "lengthMeters": 5.5,
+    "maxSpeedKmH": 45,
+    "acceleration": 2.2,
+    "color": "#c084fc",
+    "spawnWeight": 7,
+    "rainModifiers": {
+      "light": {
+        "speedFactor": 0.88,
+        "spawnFactor": 1
+      },
+      "heavy": {
+        "speedFactor": 0.72,
+        "spawnFactor": 0.8
+      }
+    }
+  },
+  "luggage_auto": {
+    "label": "Small Luggage Auto",
+    "widthMeters": 1.3,
+    "lengthMeters": 2.8,
+    "maxSpeedKmH": 35,
+    "acceleration": 2,
+    "color": "#fcd34d",
+    "spawnWeight": 8,
+    "rainModifiers": {
+      "light": {
+        "speedFactor": 0.85,
+        "spawnFactor": 0.9
+      },
+      "heavy": {
+        "speedFactor": 0.65,
+        "spawnFactor": 0.6
+      }
+    }
+  },
+  "small_bus": {
+    "label": "Small Bus",
+    "widthMeters": 2.3,
+    "lengthMeters": 7,
+    "maxSpeedKmH": 40,
+    "acceleration": 1.5,
+    "color": "#2dd4bf",
+    "spawnWeight": 4,
+    "rainModifiers": {
+      "light": {
+        "speedFactor": 0.9,
+        "spawnFactor": 1
+      },
+      "heavy": {
+        "speedFactor": 0.78,
+        "spawnFactor": 0.9
+      }
+    }
+  },
+  "medium_bus": {
+    "label": "Medium Bus",
+    "widthMeters": 2.5,
+    "lengthMeters": 9,
+    "maxSpeedKmH": 38,
+    "acceleration": 1.2,
+    "color": "#38bdf8",
+    "spawnWeight": 3,
+    "rainModifiers": {
+      "light": {
+        "speedFactor": 0.9,
+        "spawnFactor": 1
+      },
+      "heavy": {
+        "speedFactor": 0.78,
+        "spawnFactor": 0.9
+      }
+    }
+  },
+  "large_bus": {
+    "label": "Large Bus",
+    "widthMeters": 2.5,
+    "lengthMeters": 12,
+    "maxSpeedKmH": 35,
+    "acceleration": 1,
+    "color": "#818cf8",
+    "spawnWeight": 2,
+    "rainModifiers": {
+      "light": {
+        "speedFactor": 0.92,
+        "spawnFactor": 1
+      },
+      "heavy": {
+        "speedFactor": 0.8,
+        "spawnFactor": 0.9
+      }
+    }
+  },
+  "disabled_3w": {
+    "label": "Disabled 3-Wheeler",
+    "widthMeters": 1.2,
+    "lengthMeters": 2,
+    "maxSpeedKmH": 20,
+    "acceleration": 1.5,
+    "color": "#fb7185",
+    "spawnWeight": 2,
+    "rainModifiers": {
+      "light": {
+        "speedFactor": 0.8,
+        "spawnFactor": 0.7
+      },
+      "heavy": {
+        "speedFactor": 0.55,
+        "spawnFactor": 0.3
+      }
+    }
+  }
+}

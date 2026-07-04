@@ -1,0 +1,1290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Roads &amp; Locations — Data Extraction Guide</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg-primary: #0b0f1a;
+      --bg-secondary: #111827;
+      --bg-card: #1a2236;
+      --bg-card-hover: #1f2a42;
+      --accent-blue: #3b82f6;
+      --accent-cyan: #06b6d4;
+      --accent-emerald: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-rose: #f43f5e;
+      --accent-violet: #8b5cf6;
+      --accent-orange: #f97316;
+      --text-primary: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --border: #1e293b;
+      --border-accent: #334155;
+      --shadow-lg: 0 10px 40px rgba(0,0,0,0.4);
+      --shadow-glow-blue: 0 0 30px rgba(59,130,246,0.15);
+      --radius: 16px;
+      --radius-sm: 10px;
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.7;
+      min-height: 100vh;
+    }
+
+    /* === HERO === */
+    .hero {
+      position: relative;
+      padding: 80px 24px 60px;
+      text-align: center;
+      overflow: hidden;
+      background: radial-gradient(ellipse at 50% 0%, rgba(16,185,129,0.1) 0%, transparent 60%),
+                  radial-gradient(ellipse at 80% 80%, rgba(245,158,11,0.06) 0%, transparent 50%),
+                  var(--bg-primary);
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 6px 16px;
+      background: rgba(16,185,129,0.1);
+      border: 1px solid rgba(16,185,129,0.25);
+      border-radius: 100px;
+      font-size: 0.8rem; font-weight: 500;
+      color: var(--accent-emerald);
+      margin-bottom: 24px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+    .hero-badge .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent-amber); animation: pulse-dot 2s ease-in-out infinite; }
+    @keyframes pulse-dot { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+    .hero h1 {
+      font-size: clamp(2rem, 5vw, 3rem);
+      font-weight: 800;
+      background: linear-gradient(135deg, #f1f5f9 30%, #10b981 70%, #f59e0b);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 16px;
+      letter-spacing: -0.02em;
+    }
+    .hero p {
+      font-size: 1.05rem; color: var(--text-secondary);
+      max-width: 680px; margin: 0 auto;
+    }
+
+    /* === NAV === */
+    .toc-bar {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(11,15,26,0.88);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 24px;
+    }
+    .toc-inner {
+      max-width: 1100px; margin: 0 auto;
+      display: flex; gap: 8px; overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .toc-inner::-webkit-scrollbar { display: none; }
+    .toc-link {
+      flex-shrink: 0;
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 0.78rem; font-weight: 500;
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+    .toc-link:hover { color: var(--text-primary); background: rgba(16,185,129,0.1); }
+
+    /* === CONTAINER === */
+    .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+
+    /* === SECTIONS === */
+    section { padding: 56px 0; }
+    .section-header { margin-bottom: 36px; }
+    .section-label {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 0.75rem; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.1em;
+      margin-bottom: 10px;
+    }
+    .section-label .num {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 22px; height: 22px; border-radius: 6px;
+      font-size: 0.7rem; font-weight: 700;
+    }
+    .section-header h2 {
+      font-size: 1.7rem; font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 8px;
+    }
+    .section-header p {
+      color: var(--text-secondary); font-size: 0.92rem;
+      max-width: 720px;
+    }
+
+    /* section themes */
+    .theme-emerald .section-label { color: var(--accent-emerald); }
+    .theme-emerald .num { background: rgba(16,185,129,0.15); color: var(--accent-emerald); }
+    .theme-blue .section-label { color: var(--accent-blue); }
+    .theme-blue .num { background: rgba(59,130,246,0.15); color: var(--accent-blue); }
+    .theme-amber .section-label { color: var(--accent-amber); }
+    .theme-amber .num { background: rgba(245,158,11,0.15); color: var(--accent-amber); }
+    .theme-cyan .section-label { color: var(--accent-cyan); }
+    .theme-cyan .num { background: rgba(6,182,212,0.15); color: var(--accent-cyan); }
+    .theme-violet .section-label { color: var(--accent-violet); }
+    .theme-violet .num { background: rgba(139,92,246,0.15); color: var(--accent-violet); }
+    .theme-rose .section-label { color: var(--accent-rose); }
+    .theme-rose .num { background: rgba(244,63,94,0.15); color: var(--accent-rose); }
+    .theme-orange .section-label { color: var(--accent-orange); }
+    .theme-orange .num { background: rgba(249,115,22,0.15); color: var(--accent-orange); }
+
+    /* === CARDS === */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      transition: all 0.3s ease;
+    }
+    .card:hover {
+      border-color: var(--border-accent);
+      background: var(--bg-card-hover);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+    }
+    .card h3 {
+      font-size: 1.05rem; font-weight: 600;
+      margin-bottom: 14px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .card h3 .icon { font-size: 1.2rem; }
+    .card p, .card li { color: var(--text-secondary); font-size: 0.88rem; }
+    .card ul, .card ol { padding-left: 0; list-style: none; }
+    .card li {
+      padding: 5px 0; padding-left: 20px; position: relative;
+    }
+    .card li::before {
+      content: '›'; position: absolute; left: 4px; top: 5px;
+      color: var(--text-muted); font-weight: 700;
+    }
+
+    .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 20px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+
+    /* === STEP CARDS === */
+    .step-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0;
+      overflow: hidden;
+      transition: all 0.3s ease;
+      margin-bottom: 20px;
+    }
+    .step-card:hover {
+      border-color: var(--border-accent);
+      box-shadow: var(--shadow-lg);
+    }
+    .step-header {
+      display: flex; align-items: center; gap: 14px;
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(255,255,255,0.01);
+    }
+    .step-number {
+      flex-shrink: 0;
+      width: 36px; height: 36px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.85rem; font-weight: 700;
+    }
+    .step-header h3 {
+      font-size: 1rem; font-weight: 600; margin: 0;
+    }
+    .step-header .subtitle {
+      font-size: 0.78rem; color: var(--text-muted); margin-top: 2px;
+    }
+    .step-body {
+      padding: 24px;
+    }
+    .step-body p { color: var(--text-secondary); font-size: 0.88rem; margin-bottom: 12px; }
+    .step-body ul { list-style: none; padding: 0; }
+    .step-body li {
+      color: var(--text-secondary); font-size: 0.88rem;
+      padding: 5px 0 5px 22px; position: relative;
+    }
+    .step-body li::before {
+      content: '✓'; position: absolute; left: 0; top: 5px;
+      color: var(--accent-emerald); font-weight: 700; font-size: 0.8rem;
+    }
+
+    /* === CODE === */
+    .code-block {
+      background: #0d1117;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 20px;
+      overflow-x: auto;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      line-height: 1.9;
+      color: #c9d1d9;
+    }
+    .code-block .comment { color: #6e7681; }
+    .code-block .key { color: #79c0ff; }
+    .code-block .string { color: #a5d6ff; }
+    .code-block .number { color: #f2cc60; }
+    .code-block .type { color: #ff7b72; }
+    .code-block .bracket { color: #8b949e; }
+    .code-block .cmd { color: #d2a8ff; }
+
+    /* === TABLE === */
+    .table-wrap {
+      overflow-x: auto;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+    }
+    table {
+      width: 100%; border-collapse: collapse; font-size: 0.83rem;
+    }
+    th {
+      text-align: left; padding: 14px 16px;
+      background: var(--bg-card); color: var(--text-muted);
+      font-weight: 600; font-size: 0.73rem;
+      text-transform: uppercase; letter-spacing: 0.06em;
+      border-bottom: 1px solid var(--border);
+    }
+    td {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-secondary);
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(59,130,246,0.03); }
+
+    .tag {
+      display: inline-block; padding: 2px 10px;
+      border-radius: 6px; font-size: 0.73rem; font-weight: 500;
+    }
+    .tag-green { background: rgba(16,185,129,0.12); color: var(--accent-emerald); }
+    .tag-blue { background: rgba(59,130,246,0.12); color: var(--accent-blue); }
+    .tag-amber { background: rgba(245,158,11,0.12); color: var(--accent-amber); }
+
+    /* === ALERT BOXES === */
+    .alert {
+      border-radius: var(--radius-sm);
+      padding: 16px 20px;
+      margin: 16px 0;
+      font-size: 0.85rem;
+      display: flex; gap: 12px; align-items: flex-start;
+    }
+    .alert .alert-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 2px; }
+    .alert p { margin: 0; }
+    .alert-info {
+      background: rgba(59,130,246,0.08);
+      border: 1px solid rgba(59,130,246,0.2);
+      color: #93c5fd;
+    }
+    .alert-warn {
+      background: rgba(245,158,11,0.08);
+      border: 1px solid rgba(245,158,11,0.2);
+      color: #fcd34d;
+    }
+    .alert-tip {
+      background: rgba(16,185,129,0.08);
+      border: 1px solid rgba(16,185,129,0.2);
+      color: #6ee7b7;
+    }
+    .alert-caution {
+      background: rgba(244,63,94,0.08);
+      border: 1px solid rgba(244,63,94,0.2);
+      color: #fda4af;
+    }
+
+    /* === LINK BUTTONS === */
+    .link-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 20px;
+      border-radius: var(--radius-sm);
+      background: rgba(59,130,246,0.1);
+      border: 1px solid rgba(59,130,246,0.3);
+      color: var(--accent-blue);
+      text-decoration: none;
+      font-size: 0.85rem; font-weight: 500;
+      transition: all 0.2s ease;
+      margin: 4px 4px 4px 0;
+    }
+    .link-btn:hover {
+      background: rgba(59,130,246,0.18);
+      border-color: var(--accent-blue);
+      transform: translateY(-1px);
+    }
+
+    /* === COORDINATE COPY BOX === */
+    .coord-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+    .coord-item {
+      display: flex; align-items: center; justify-content: space-between;
+      background: #0d1117;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      transition: border-color 0.2s;
+    }
+    .coord-item:hover { border-color: var(--accent-blue); }
+    .coord-name {
+      color: var(--text-primary);
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      font-size: 0.82rem;
+      margin-bottom: 3px;
+    }
+    .coord-val { color: var(--accent-cyan); font-size: 0.76rem; }
+    .copy-btn {
+      background: rgba(59,130,246,0.12);
+      border: 1px solid rgba(59,130,246,0.25);
+      color: var(--accent-blue);
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.72rem; font-weight: 500;
+      font-family: 'Inter', sans-serif;
+      transition: all 0.2s;
+    }
+    .copy-btn:hover { background: rgba(59,130,246,0.25); }
+    .copy-btn.copied { background: rgba(16,185,129,0.2); border-color: rgba(16,185,129,0.4); color: var(--accent-emerald); }
+
+    /* === CHECKLIST === */
+    .checklist {
+      list-style: none; padding: 0;
+    }
+    .checklist li {
+      display: flex; align-items: flex-start; gap: 12px;
+      padding: 10px 0;
+      color: var(--text-secondary);
+      font-size: 0.88rem;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+    }
+    .checklist li:last-child { border-bottom: none; }
+    .checklist .check {
+      flex-shrink: 0;
+      width: 20px; height: 20px;
+      border: 2px solid var(--border-accent);
+      border-radius: 5px;
+      margin-top: 2px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.7rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      user-select: none;
+    }
+    .checklist .check:hover { border-color: var(--accent-emerald); }
+    .checklist .check.done {
+      background: var(--accent-emerald);
+      border-color: var(--accent-emerald);
+      color: #fff;
+    }
+
+    /* === DIVIDER === */
+    .divider { border: none; border-top: 1px solid var(--border); margin: 0; }
+
+    /* === FOOTER === */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 40px 24px;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.82rem;
+    }
+
+    /* responsive */
+    @media (max-width: 640px) {
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+      .coord-grid { grid-template-columns: 1fr; }
+      .hero { padding: 60px 16px 40px; }
+      section { padding: 40px 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ==================== HERO ==================== -->
+  <header class="hero">
+    <div class="hero-badge"><span class="dot"></span> Data Extraction Guide</div>
+    <h1>Roads &amp; Locations</h1>
+    <p>Step-by-step instructions for extracting realistic map data from Google Maps to build the simulation's road network and location coordinates.</p>
+  </header>
+
+  <!-- ==================== NAV ==================== -->
+  <nav class="toc-bar">
+    <div class="toc-inner">
+      <a class="toc-link" href="#overview">Overview</a>
+      <a class="toc-link" href="#tools">Tools Needed</a>
+      <a class="toc-link" href="#step1">① Get Coordinates</a>
+      <a class="toc-link" href="#step2">② Trace Roads</a>
+      <a class="toc-link" href="#step3">③ Measure Widths</a>
+      <a class="toc-link" href="#step4">④ Export to JSON</a>
+      <a class="toc-link" href="#step5">⑤ Normalize to Canvas</a>
+      <a class="toc-link" href="#alt-osm">Alt: OpenStreetMap</a>
+      <a class="toc-link" href="#checklist">Checklist</a>
+    </div>
+  </nav>
+
+  <main class="container">
+
+    <!-- ==================== OVERVIEW ==================== -->
+    <section id="overview" class="theme-emerald">
+      <div class="section-header">
+        <div class="section-label"><span class="num">⓪</span> Overview</div>
+        <h2>What We Need to Extract</h2>
+        <p>To render a realistic simulation, we need real-world GPS coordinates, road paths, road widths, and routing data from the Vishrantwadi &amp; Viman Nagar area.</p>
+      </div>
+
+      <div class="grid-3">
+        <div class="card">
+          <h3><span class="icon">📍</span> Location Data</h3>
+          <ul>
+            <li>GPS coordinates (lat/lng) for all 9 places</li>
+            <li>Place type (residential, commercial, school)</li>
+            <li>Entry/exit point on nearest road</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3><span class="icon">🛤️</span> Road Data</h3>
+          <ul>
+            <li>Waypoints along each road path</li>
+            <li>Road widths (narrow / medium / wide)</li>
+            <li>Number of lanes &amp; direction</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3><span class="icon">🗺️</span> Network Data</h3>
+          <ul>
+            <li>Intersections / junction nodes</li>
+            <li>Connectivity graph between locations</li>
+            <li>One-way restrictions (if any)</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <hr class="divider" />
+
+    <!-- ==================== TOOLS NEEDED ==================== -->
+    <section id="tools" class="theme-blue">
+      <div class="section-header">
+        <div class="section-label"><span class="num">🔧</span> Tools Needed</div>
+        <h2>What You'll Use</h2>
+        <p>All free tools — no paid APIs required for initial data extraction.</p>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <h3><span class="icon">🌍</span> Google Maps (Primary)</h3>
+          <ul>
+            <li><strong>Google Maps web</strong> — search places, right-click for coordinates</li>
+            <li><strong>Google My Maps</strong> — create custom map with pins &amp; paths</li>
+            <li><strong>Measure distance tool</strong> — right-click → "Measure distance"</li>
+            <li><strong>Street View</strong> — verify road widths visually</li>
+          </ul>
+          <div style="margin-top: 12px;">
+            <a class="link-btn" href="https://www.google.com/maps" target="_blank">↗ Google Maps</a>
+            <a class="link-btn" href="https://www.google.com/maps/d/" target="_blank">↗ Google My Maps</a>
+          </div>
+        </div>
+        <div class="card">
+          <h3><span class="icon">🗺️</span> OpenStreetMap (Alternative)</h3>
+          <ul>
+            <li><strong>Overpass Turbo</strong> — query OSM data for roads &amp; buildings</li>
+            <li><strong>JOSM editor</strong> — inspect road widths, lanes, surface</li>
+            <li><strong>Geojson.io</strong> — draw shapes, export as GeoJSON</li>
+            <li>OSM often has lane counts &amp; road widths tagged</li>
+          </ul>
+          <div style="margin-top: 12px;">
+            <a class="link-btn" href="https://overpass-turbo.eu/" target="_blank">↗ Overpass Turbo</a>
+            <a class="link-btn" href="https://geojson.io/" target="_blank">↗ geojson.io</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="alert alert-tip" style="margin-top: 20px;">
+        <span class="alert-icon">💡</span>
+        <p><strong>Recommended approach:</strong> Use <strong>Google My Maps</strong> to pin all 9 locations and draw roads between them, then export as KML. Supplement with Overpass Turbo for lane/width metadata.</p>
+      </div>
+    </section>
+
+    <hr class="divider" />
+
+    <!-- ==================== STEP 1: GET COORDINATES ==================== -->
+    <section id="step1" class="theme-amber">
+      <div class="section-header">
+        <div class="section-label"><span class="num">1</span> Step 1</div>
+        <h2>Get GPS Coordinates for All 9 Locations</h2>
+        <p>Right-click each place on Google Maps to copy its latitude/longitude.</p>
+      </div>
+
+      <div class="step-card">
+        <div class="step-header">
+          <div class="step-number" style="background:rgba(245,158,11,0.15); color:var(--accent-amber);">1a</div>
+          <div>
+            <h3>Search &amp; Right-Click for Coordinates</h3>
+            <div class="subtitle">For each of the 9 locations</div>
+          </div>
+        </div>
+        <div class="step-body">
+          <p>Open <a href="https://www.google.com/maps" target="_blank" style="color:var(--accent-blue)">Google Maps</a> and follow these steps for each location:</p>
+          <ul>
+            <li>Search for the place name (e.g., "Aero Mall Viman Nagar Pune")</li>
+            <li>Once the pin appears, <strong>right-click</strong> on the exact spot</li>
+            <li>The first option in the context menu shows the <strong>latitude, longitude</strong> (e.g., <code style="color:var(--accent-cyan)">18.5645, 73.9120</code>)</li>
+            <li><strong>Click</strong> on those numbers to copy them to clipboard</li>
+            <li>Paste into the table below or into a spreadsheet</li>
+          </ul>
+
+          <div class="alert alert-info">
+            <span class="alert-icon">ℹ️</span>
+            <p>Click on the <strong>exact entrance or gate</strong> of each place, not the centre of the building. This gives a more accurate road-connection point.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-header">
+          <div class="step-number" style="background:rgba(245,158,11,0.15); color:var(--accent-amber);">1b</div>
+          <div>
+            <h3>Location Coordinates Reference</h3>
+            <div class="subtitle">Pre-looked-up approximate values — verify &amp; correct these yourself</div>
+          </div>
+        </div>
+        <div class="step-body">
+          <div class="alert alert-warn">
+            <span class="alert-icon">⚠️</span>
+            <p><strong>These are approximate.</strong> You must verify each coordinate by searching on Google Maps and adjusting the pin to the exact entrance.</p>
+          </div>
+
+          <div class="coord-grid">
+            <div class="coord-item">
+              <div>
+                <div class="coord-name">D Block Surabhi Township</div>
+                <div class="coord-val">18.5678, 73.9054</div>
+              </div>
+              <button class="copy-btn" onclick="copyCoord(this, '18.5678, 73.9054')">Copy</button>
+            </div>
+            <div class="coord-item">
+              <div>
+                <div class="coord-name">Aero Mall</div>
+                <div class="coord-val">18.5630, 73.9145</div>
+              </div>
+              <button class="copy-btn" onclick="copyCoord(this, '18.5630, 73.9145')">Copy</button>
+            </div>
+            <div class="coord-item">
+              <div>
+                <div class="coord-name">Vibgyor Yerwada School</div>
+                <div class="coord-val">18.5590, 73.9180</div>
+              </div>
+              <button class="copy-btn" onclick="copyCoord(this, '18.5590, 73.9180')">Copy</button>
+            </div>
+            <div class="coord-item">
+              <div>
+                <div class="coord-name">Planet Medical</div>
+                <div class="coord-val">18.5660, 73.9080</div>
+              </div>
+              <button class="copy-btn" onclick="copyCoord(this, '18.5660, 73.9080')">Copy</button>
+            </div>
+            <div class="coord-item">
+              <div>
+                <div class="coord-name">Momo Hub</div>
+                <div class="coord-val">18.5640, 73.9110</div>
+              </div>
+              <button class="copy-btn" onclick="copyCoord(this, '18.5640, 73.9110')">Copy</button>
+            </div>
+            <div class="coord-item">
+              <div>
+                <div class="coord-name">A7 Kumar Samrudhi Flats</div>
+                <div class="coord-val">18.5700, 73.9065</div>
+              </div>
+              <button class="copy-btn" onclick="copyCoord(this, '18.5700, 73.9065')">Copy</button>
+            </div>
+            <div class="coord-item">
+              <div>
+                <div class="coord-name">Laxmi Township 3 Kalas</div>
+                <div class="coord-val">18.5615, 73.9150</div>
+              </div>
+              <button class="copy-btn" onclick="copyCoord(this, '18.5615, 73.9150')">Copy</button>
+            </div>
+            <div class="coord-item">
+              <div>
+                <div class="coord-name">Neuron School</div>
+                <div class="coord-val">18.5650, 73.9095</div>
+              </div>
+              <button class="copy-btn" onclick="copyCoord(this, '18.5650, 73.9095')">Copy</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="divider" />
+
+    <!-- ==================== STEP 2: TRACE ROADS ==================== -->
+    <section id="step2" class="theme-cyan">
+      <div class="section-header">
+        <div class="section-label"><span class="num">2</span> Step 2</div>
+        <h2>Trace Road Paths Using Google My Maps</h2>
+        <p>Create a custom map with all road segments drawn as polylines to capture realistic road geometry.</p>
+      </div>
+
+      <div class="step-card">
+        <div class="step-header">
+          <div class="step-number" style="background:rgba(6,182,212,0.15); color:var(--accent-cyan);">2a</div>
+          <div>
+            <h3>Create a New Google My Maps Project</h3>
+            <div class="subtitle">This will be your master reference map</div>
+          </div>
+        </div>
+        <div class="step-body">
+          <ul>
+            <li>Go to <a href="https://www.google.com/maps/d/" target="_blank" style="color:var(--accent-blue)">Google My Maps</a> and click <strong>"+ Create a new map"</strong></li>
+            <li>Name it <strong>"Traffic in Rain — Vishrantwadi &amp; Viman Nagar"</strong></li>
+            <li>Create a layer called <strong>"Locations"</strong></li>
+            <li>Create another layer called <strong>"Roads"</strong></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-header">
+          <div class="step-number" style="background:rgba(6,182,212,0.15); color:var(--accent-cyan);">2b</div>
+          <div>
+            <h3>Pin All 9 Locations</h3>
+            <div class="subtitle">In the "Locations" layer</div>
+          </div>
+        </div>
+        <div class="step-body">
+          <ul>
+            <li>Select the <strong>"Locations"</strong> layer</li>
+            <li>Click the <strong>pin/marker icon</strong> in the toolbar (🔍 or marker)</li>
+            <li>Search for each place and drop a pin at its entrance</li>
+            <li>Name each marker (e.g., "Aero Mall", "Planet Medical")</li>
+            <li>Color-code them by type: 🟢 Residential, 🔵 Commercial, 🟡 School</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-header">
+          <div class="step-number" style="background:rgba(6,182,212,0.15); color:var(--accent-cyan);">2c</div>
+          <div>
+            <h3>Draw Road Polylines</h3>
+            <div class="subtitle">In the "Roads" layer — this captures road geometry as waypoints</div>
+          </div>
+        </div>
+        <div class="step-body">
+          <p>For each road segment connecting two locations:</p>
+          <ul>
+            <li>Select the <strong>"Roads"</strong> layer</li>
+            <li>Click the <strong>"Draw a line"</strong> tool → choose <strong>"Add line or shape"</strong></li>
+            <li>Click along the <strong>centre of the road</strong>, following its curves and bends</li>
+            <li>Place a point at <strong>every bend or curve</strong> — these become your waypoints</li>
+            <li>Place points every ~20–30 metres on straight sections</li>
+            <li>Double-click to finish the line</li>
+            <li>Name the line (e.g., "Airport Rd: Aero Mall → Vibgyor")</li>
+            <li>Color wide roads <span style="color:var(--accent-emerald)">green</span>, medium <span style="color:var(--accent-blue)">blue</span>, narrow <span style="color:var(--accent-amber)">yellow</span></li>
+          </ul>
+
+          <div class="alert alert-tip">
+            <span class="alert-icon">💡</span>
+            <p>Switch to <strong>Satellite view</strong> while drawing roads — it's much easier to see the actual road edges and curves compared to the default map view.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-header">
+          <div class="step-number" style="background:rgba(6,182,212,0.15); color:var(--accent-cyan);">2d</div>
+          <div>
+            <h3>Export as KML</h3>
+            <div class="subtitle">This gives you all coordinates in a structured file</div>
+          </div>
+        </div>
+        <div class="step-body">
+          <ul>
+            <li>Click the <strong>⋮ (three dots)</strong> menu next to the map title</li>
+            <li>Select <strong>"Export to KML/KMZ"</strong></li>
+            <li>Check <strong>"Export as KML instead of KMZ"</strong></li>
+            <li>Download and save as <code style="color:var(--accent-cyan)">map-data.kml</code> in your project's <code>docs/</code> folder</li>
+          </ul>
+
+          <div class="alert alert-info">
+            <span class="alert-icon">ℹ️</span>
+            <p>KML is XML with <code>&lt;coordinates&gt;</code> tags containing <code>longitude,latitude,altitude</code> triplets. We'll parse these into JSON in Step 4.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="divider" />
+
+    <!-- ==================== STEP 3: MEASURE WIDTHS ==================== -->
+    <section id="step3" class="theme-violet">
+      <div class="section-header">
+        <div class="section-label"><span class="num">3</span> Step 3</div>
+        <h2>Measure Road Widths &amp; Lane Counts</h2>
+        <p>Use Google Maps' measure tool and Street View to determine how wide each road segment is.</p>
+      </div>
+
+      <div class="step-card">
+        <div class="step-header">
+          <div class="step-number" style="background:rgba(139,92,246,0.15); color:var(--accent-violet);">3a</div>
+          <div>
+            <h3>Measure with "Measure Distance" Tool</h3>
+            <div class="subtitle">Get approximate road widths in metres</div>
+          </div>
+        </div>
+        <div class="step-body">
+          <ul>
+            <li>On Google Maps (satellite view), <strong>right-click</strong> on one edge of the road</li>
+            <li>Select <strong>"Measure distance"</strong></li>
+            <li>Click on the <strong>opposite edge</strong> of the road</li>
+            <li>Read the distance — this is the road width</li>
+            <li>Record it for each road segment</li>
+          </ul>
+
+          <div class="alert alert-warn">
+            <span class="alert-icon">⚠️</span>
+            <p>Zoom in to <strong>maximum level</strong> in satellite view for accurate edge-to-edge measurement. At low zoom, you could be off by several metres.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-header">
+          <div class="step-number" style="background:rgba(139,92,246,0.15); color:var(--accent-violet);">3b</div>
+          <div>
+            <h3>Verify with Street View</h3>
+            <div class="subtitle">Visual confirmation of lane counts</div>
+          </div>
+        </div>
+        <div class="step-body">
+          <ul>
+            <li>Drag the <strong>yellow pegman</strong> onto each road segment</li>
+            <li>Count the number of lanes visible</li>
+            <li>Note if there are medians, dividers, or parking on the side</li>
+            <li>Check if roads narrow at certain points (pinch points cause congestion!)</li>
+            <li>Note any one-way restrictions visible on signs</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-header">
+          <div class="step-number" style="background:rgba(139,92,246,0.15); color:var(--accent-violet);">3c</div>
+          <div>
+            <h3>Width Classification Guide</h3>
+            <div class="subtitle">Map measured widths to simulation categories</div>
+          </div>
+        </div>
+        <div class="step-body">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Category</th>
+                  <th>Width Range</th>
+                  <th>Fits</th>
+                  <th>Lanes</th>
+                  <th>Examples in Area</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><span class="tag tag-green">Wide</span></td>
+                  <td>12–16 m</td>
+                  <td>4 buses side by side</td>
+                  <td>4 (2 each way)</td>
+                  <td>Airport Road, main Vishrantwadi Rd</td>
+                </tr>
+                <tr>
+                  <td><span class="tag tag-blue">Medium</span></td>
+                  <td>7–10 m</td>
+                  <td>2 vehicles (1 each way)</td>
+                  <td>2</td>
+                  <td>Connector roads between colonies</td>
+                </tr>
+                <tr>
+                  <td><span class="tag tag-amber">Narrow</span></td>
+                  <td>4–6 m</td>
+                  <td>1 bus + 1 car squeezing by</td>
+                  <td>1 shared</td>
+                  <td>Internal township lanes, gullies</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="divider" />
+
+    <!-- ==================== STEP 4: EXPORT TO JSON ==================== -->
+    <section id="step4" class="theme-rose">
+      <div class="section-header">
+        <div class="section-label"><span class="num">4</span> Step 4</div>
+        <h2>Convert Extracted Data to Project JSON</h2>
+        <p>Transform your Google Maps data into the config JSON files the simulation engine expects.</p>
+      </div>
+
+      <div class="step-card">
+        <div class="step-header">
+          <div class="step-number" style="background:rgba(244,63,94,0.15); color:var(--accent-rose);">4a</div>
+          <div>
+            <h3>Parse KML to Extract Coordinates</h3>
+            <div class="subtitle">Use this Node.js helper script</div>
+          </div>
+        </div>
+        <div class="step-body">
+          <p>Save this script as <code style="color:var(--accent-cyan)">scripts/parse-kml.js</code> in your project and run it on the exported KML file.</p>
+          <div class="code-block">
+<span class="comment">// scripts/parse-kml.js</span>
+<span class="comment">// Usage: node scripts/parse-kml.js docs/map-data.kml</span>
+
+<span class="type">const</span> fs = <span class="cmd">require</span>(<span class="string">'fs'</span>);
+
+<span class="type">const</span> kmlFile = process.argv[<span class="number">2</span>] || <span class="string">'docs/map-data.kml'</span>;
+<span class="type">const</span> kml = fs.<span class="cmd">readFileSync</span>(kmlFile, <span class="string">'utf-8'</span>);
+
+<span class="comment">// Extract Placemarks (locations &amp; roads)</span>
+<span class="type">const</span> placemarks = kml.<span class="cmd">match</span>(<span class="string">/&lt;Placemark&gt;[\s\S]*?&lt;\/Placemark&gt;/g</span>) || [];
+
+<span class="type">const</span> locations = [];
+<span class="type">const</span> roads = [];
+
+placemarks.<span class="cmd">forEach</span>(pm =&gt; {
+  <span class="type">const</span> name = pm.<span class="cmd">match</span>(<span class="string">/&lt;name&gt;(.*?)&lt;\/name&gt;/</span>)?.[<span class="number">1</span>] || <span class="string">'Unnamed'</span>;
+  <span class="type">const</span> coordsRaw = pm.<span class="cmd">match</span>(
+    <span class="string">/&lt;coordinates&gt;([\s\S]*?)&lt;\/coordinates&gt;/</span>
+  )?.[<span class="number">1</span>]?.trim();
+
+  <span class="type">if</span> (!coordsRaw) <span class="type">return</span>;
+
+  <span class="type">const</span> points = coordsRaw.<span class="cmd">split</span>(<span class="string">/\s+/</span>).<span class="cmd">map</span>(c =&gt; {
+    <span class="type">const</span> [lng, lat] = c.<span class="cmd">split</span>(<span class="string">','</span>).<span class="cmd">map</span>(Number);
+    <span class="type">return</span> { lat, lng };
+  });
+
+  <span class="type">if</span> (points.length === <span class="number">1</span>) {
+    <span class="comment">// Single point = location marker</span>
+    locations.<span class="cmd">push</span>({ name, ...points[<span class="number">0</span>] });
+  } <span class="type">else</span> {
+    <span class="comment">// Multiple points = road polyline</span>
+    roads.<span class="cmd">push</span>({ name, waypoints: points });
+  }
+});
+
+console.<span class="cmd">log</span>(<span class="string">'=== LOCATIONS ==='</span>);
+console.<span class="cmd">log</span>(JSON.<span class="cmd">stringify</span>(locations, <span class="type">null</span>, <span class="number">2</span>));
+console.<span class="cmd">log</span>(<span class="string">'\n=== ROADS ==='</span>);
+console.<span class="cmd">log</span>(JSON.<span class="cmd">stringify</span>(roads, <span class="type">null</span>, <span class="number">2</span>));
+          </div>
+        </div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-header">
+          <div class="step-number" style="background:rgba(244,63,94,0.15); color:var(--accent-rose);">4b</div>
+          <div>
+            <h3>Create <code>locations.json</code></h3>
+            <div class="subtitle">Save to <code>src/config/locations.json</code></div>
+          </div>
+        </div>
+        <div class="step-body">
+          <p>Using the parsed output, create the locations config file with this structure:</p>
+          <div class="code-block">
+<span class="comment">// src/config/locations.json</span>
+<span class="bracket">[</span>
+  <span class="bracket">{</span>
+    <span class="key">"id"</span>: <span class="string">"surabhi_d_block"</span>,
+    <span class="key">"name"</span>: <span class="string">"D Block Surabhi Township"</span>,
+    <span class="key">"type"</span>: <span class="string">"residential"</span>,
+    <span class="key">"lat"</span>: <span class="number">18.5678</span>,
+    <span class="key">"lng"</span>: <span class="number">73.9054</span>,
+    <span class="key">"spawnRate"</span>: <span class="number">0.8</span>,
+    <span class="key">"attractionWeight"</span>: <span class="number">1.0</span>
+  <span class="bracket">}</span>,
+  <span class="bracket">{</span>
+    <span class="key">"id"</span>: <span class="string">"aero_mall"</span>,
+    <span class="key">"name"</span>: <span class="string">"Aero Mall"</span>,
+    <span class="key">"type"</span>: <span class="string">"commercial"</span>,
+    <span class="key">"lat"</span>: <span class="number">18.5630</span>,
+    <span class="key">"lng"</span>: <span class="number">73.9145</span>,
+    <span class="key">"spawnRate"</span>: <span class="number">1.2</span>,
+    <span class="key">"attractionWeight"</span>: <span class="number">2.0</span>
+  <span class="bracket">}</span>,
+  <span class="comment">// ... repeat for all 9 locations</span>
+  <span class="comment">// Fill in YOUR verified coordinates from Step 1</span>
+<span class="bracket">]</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-header">
+          <div class="step-number" style="background:rgba(244,63,94,0.15); color:var(--accent-rose);">4c</div>
+          <div>
+            <h3>Create <code>roads.json</code></h3>
+            <div class="subtitle">Save to <code>src/config/roads.json</code></div>
+          </div>
+        </div>
+        <div class="step-body">
+          <p>Transform each road polyline from the KML into an edge with waypoints and your measured widths:</p>
+          <div class="code-block">
+<span class="comment">// src/config/roads.json</span>
+<span class="bracket">{</span>
+  <span class="key">"edges"</span>: <span class="bracket">[</span>
+    <span class="bracket">{</span>
+      <span class="key">"id"</span>: <span class="string">"airport_rd_main"</span>,
+      <span class="key">"name"</span>: <span class="string">"Airport Road"</span>,
+      <span class="key">"from"</span>: <span class="string">"aero_mall"</span>,
+      <span class="key">"to"</span>: <span class="string">"vibgyor_school"</span>,
+      <span class="key">"widthMeters"</span>: <span class="number">14</span>,         <span class="comment">// from Step 3 measurement</span>
+      <span class="key">"widthClass"</span>: <span class="string">"wide"</span>,       <span class="comment">// wide | medium | narrow</span>
+      <span class="key">"lanes"</span>: <span class="number">4</span>,
+      <span class="key">"speedLimit"</span>: <span class="number">50</span>,
+      <span class="key">"bidirectional"</span>: <span class="type">true</span>,
+      <span class="key">"waypoints"</span>: <span class="bracket">[</span>          <span class="comment">// from KML polyline</span>
+        <span class="bracket">{</span> <span class="key">"lat"</span>: <span class="number">18.5630</span>, <span class="key">"lng"</span>: <span class="number">73.9145</span> <span class="bracket">}</span>,
+        <span class="bracket">{</span> <span class="key">"lat"</span>: <span class="number">18.5618</span>, <span class="key">"lng"</span>: <span class="number">73.9155</span> <span class="bracket">}</span>,
+        <span class="bracket">{</span> <span class="key">"lat"</span>: <span class="number">18.5600</span>, <span class="key">"lng"</span>: <span class="number">73.9170</span> <span class="bracket">}</span>,
+        <span class="bracket">{</span> <span class="key">"lat"</span>: <span class="number">18.5590</span>, <span class="key">"lng"</span>: <span class="number">73.9180</span> <span class="bracket">}</span>
+      <span class="bracket">]</span>
+    <span class="bracket">}</span>,
+    <span class="comment">// ... more road edges</span>
+  <span class="bracket">]</span>
+<span class="bracket">}</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="divider" />
+
+    <!-- ==================== STEP 5: NORMALIZE TO CANVAS ==================== -->
+    <section id="step5" class="theme-orange">
+      <div class="section-header">
+        <div class="section-label"><span class="num">5</span> Step 5</div>
+        <h2>Normalize GPS to Canvas Coordinates</h2>
+        <p>Convert real-world lat/lng into pixel positions on the simulation canvas.</p>
+      </div>
+
+      <div class="step-card">
+        <div class="step-header">
+          <div class="step-number" style="background:rgba(249,115,22,0.15); color:var(--accent-orange);">5a</div>
+          <div>
+            <h3>The Projection Formula</h3>
+            <div class="subtitle">Linear mapping from GPS bounding box to canvas pixels</div>
+          </div>
+        </div>
+        <div class="step-body">
+          <p>Since the area is small (~1.5 km²), a simple linear projection works. No need for Mercator.</p>
+          <div class="code-block">
+<span class="comment">// src/utils/projection.js</span>
+
+<span class="comment">// Bounding box of all locations (find min/max from your data)</span>
+<span class="type">const</span> BOUNDS = <span class="bracket">{</span>
+  <span class="key">minLat</span>: <span class="number">18.5580</span>,   <span class="comment">// southernmost point</span>
+  <span class="key">maxLat</span>: <span class="number">18.5710</span>,   <span class="comment">// northernmost point</span>
+  <span class="key">minLng</span>: <span class="number">73.9040</span>,   <span class="comment">// westernmost point</span>
+  <span class="key">maxLng</span>: <span class="number">73.9200</span>,   <span class="comment">// easternmost point</span>
+<span class="bracket">}</span>;
+
+<span class="type">const</span> CANVAS_WIDTH  = <span class="number">1400</span>;  <span class="comment">// pixels</span>
+<span class="type">const</span> CANVAS_HEIGHT = <span class="number">900</span>;   <span class="comment">// pixels</span>
+<span class="type">const</span> PADDING = <span class="number">60</span>;         <span class="comment">// edge padding in pixels</span>
+
+<span class="type">export function</span> <span class="cmd">gpsToCanvas</span>(lat, lng) <span class="bracket">{</span>
+  <span class="comment">// Normalize to 0–1 range</span>
+  <span class="type">const</span> nx = (lng - BOUNDS.minLng) / (BOUNDS.maxLng - BOUNDS.minLng);
+  <span class="type">const</span> ny = (lat - BOUNDS.minLat) / (BOUNDS.maxLat - BOUNDS.minLat);
+
+  <span class="comment">// Map to canvas pixels (flip Y: lat increases north, canvas Y increases down)</span>
+  <span class="type">const</span> x = PADDING + nx * (CANVAS_WIDTH  - <span class="number">2</span> * PADDING);
+  <span class="type">const</span> y = PADDING + (<span class="number">1</span> - ny) * (CANVAS_HEIGHT - <span class="number">2</span> * PADDING);
+
+  <span class="type">return</span> <span class="bracket">{</span> x: Math.<span class="cmd">round</span>(x), y: Math.<span class="cmd">round</span>(y) <span class="bracket">}</span>;
+<span class="bracket">}</span>
+
+<span class="comment">// Convert real-world meters to canvas pixels</span>
+<span class="type">export function</span> <span class="cmd">metersToPixels</span>(meters) <span class="bracket">{</span>
+  <span class="comment">// ~111,320 m per degree latitude at this latitude</span>
+  <span class="type">const</span> degreesPerMeter = <span class="number">1</span> / <span class="number">111320</span>;
+  <span class="type">const</span> latRange = BOUNDS.maxLat - BOUNDS.minLat;
+  <span class="type">const</span> pixelsPerDegree = (CANVAS_HEIGHT - <span class="number">2</span> * PADDING) / latRange;
+  <span class="type">return</span> Math.<span class="cmd">round</span>(meters * degreesPerMeter * pixelsPerDegree);
+<span class="bracket">}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-header">
+          <div class="step-number" style="background:rgba(249,115,22,0.15); color:var(--accent-orange);">5b</div>
+          <div>
+            <h3>Batch Convert All Coordinates</h3>
+            <div class="subtitle">Script to generate canvas-ready config</div>
+          </div>
+        </div>
+        <div class="step-body">
+          <p>Run this after you have final <code>locations.json</code> and <code>roads.json</code> with GPS coordinates:</p>
+          <div class="code-block">
+<span class="comment">// scripts/convert-to-canvas.js</span>
+<span class="comment">// Usage: node scripts/convert-to-canvas.js</span>
+
+<span class="type">const</span> { gpsToCanvas, metersToPixels } = <span class="cmd">require</span>(<span class="string">'../src/utils/projection'</span>);
+<span class="type">const</span> locations = <span class="cmd">require</span>(<span class="string">'../src/config/locations.json'</span>);
+<span class="type">const</span> roads = <span class="cmd">require</span>(<span class="string">'../src/config/roads.json'</span>);
+
+<span class="comment">// Convert locations</span>
+<span class="type">const</span> canvasLocations = locations.<span class="cmd">map</span>(loc =&gt; (<span class="bracket">{</span>
+  ...loc,
+  ...gpsToCanvas(loc.lat, loc.lng),   <span class="comment">// adds x, y</span>
+<span class="bracket">}</span>));
+
+<span class="comment">// Convert road waypoints + widths</span>
+<span class="type">const</span> canvasRoads = roads.edges.<span class="cmd">map</span>(road =&gt; (<span class="bracket">{</span>
+  ...road,
+  <span class="key">widthPixels</span>: metersToPixels(road.widthMeters),
+  <span class="key">waypoints</span>: road.waypoints.<span class="cmd">map</span>(
+    wp =&gt; gpsToCanvas(wp.lat, wp.lng)
+  ),
+<span class="bracket">}</span>));
+
+console.<span class="cmd">log</span>(JSON.<span class="cmd">stringify</span>(<span class="bracket">{</span> canvasLocations, canvasRoads <span class="bracket">}</span>, <span class="type">null</span>, <span class="number">2</span>));
+          </div>
+
+          <div class="alert alert-tip">
+            <span class="alert-icon">💡</span>
+            <p><strong>Result:</strong> Your locations get <code>x, y</code> pixel positions. Your road waypoints become pixel coordinates. Road widths become pixel widths. The simulation renderer uses these directly.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="divider" />
+
+    <!-- ==================== ALT: OPENSTREETMAP ==================== -->
+    <section id="alt-osm" class="theme-emerald">
+      <div class="section-header">
+        <div class="section-label"><span class="num">⊕</span> Alternative Method</div>
+        <h2>Extract Roads from OpenStreetMap</h2>
+        <p>OSM has detailed road data including lane counts and surface types. Use Overpass Turbo to query it programmatically.</p>
+      </div>
+
+      <div class="step-card">
+        <div class="step-header">
+          <div class="step-number" style="background:rgba(16,185,129,0.15); color:var(--accent-emerald);">A1</div>
+          <div>
+            <h3>Overpass Turbo Query</h3>
+            <div class="subtitle">Get all roads in the Vishrantwadi–Viman Nagar bounding box</div>
+          </div>
+        </div>
+        <div class="step-body">
+          <p>Go to <a href="https://overpass-turbo.eu/" target="_blank" style="color:var(--accent-blue)">Overpass Turbo</a> and paste this query:</p>
+          <div class="code-block">
+<span class="comment">// Overpass QL — roads in Vishrantwadi–Viman Nagar area</span>
+
+[out:json][timeout:25];
+(
+  <span class="comment">// Get all highways (roads) in bounding box</span>
+  way[<span class="string">"highway"</span>]
+    (<span class="number">18.557</span>,<span class="number">73.903</span>,<span class="number">18.572</span>,<span class="number">73.921</span>);
+);
+out body;
+&gt;;
+out skel qt;
+          </div>
+          <ul style="margin-top: 14px;">
+            <li>Click <strong>"Run"</strong> to execute the query</li>
+            <li>Roads will be highlighted on the map</li>
+            <li>Click <strong>"Export" → "GeoJSON"</strong> to download</li>
+            <li>Save as <code style="color:var(--accent-cyan)">docs/osm-roads.geojson</code></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-header">
+          <div class="step-number" style="background:rgba(16,185,129,0.15); color:var(--accent-emerald);">A2</div>
+          <div>
+            <h3>What OSM Road Data Includes</h3>
+            <div class="subtitle">Much richer metadata than Google Maps</div>
+          </div>
+        </div>
+        <div class="step-body">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>OSM Tag</th>
+                  <th>What It Tells You</th>
+                  <th>Useful For</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td><code>highway</code></td><td>Road type (primary, secondary, residential, service)</td><td>Speed limits, priority</td></tr>
+                <tr><td><code>lanes</code></td><td>Number of lanes</td><td>Direct input to road config</td></tr>
+                <tr><td><code>width</code></td><td>Road width in metres</td><td>Direct input — no measuring needed!</td></tr>
+                <tr><td><code>surface</code></td><td>Asphalt, concrete, unpaved</td><td>Base friction values</td></tr>
+                <tr><td><code>maxspeed</code></td><td>Speed limit</td><td>Vehicle speed caps</td></tr>
+                <tr><td><code>oneway</code></td><td>One-way restriction</td><td>Routing constraints</td></tr>
+                <tr><td><code>name</code></td><td>Road name</td><td>Display labels</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="alert alert-info" style="margin-top: 16px;">
+            <span class="alert-icon">ℹ️</span>
+            <p><strong>Note:</strong> Not all OSM roads have <code>lanes</code> and <code>width</code> tagged. For those that don't, fall back to your Google Maps measurements from Step 3.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-header">
+          <div class="step-number" style="background:rgba(16,185,129,0.15); color:var(--accent-emerald);">A3</div>
+          <div>
+            <h3>Parse GeoJSON to Project Config</h3>
+            <div class="subtitle">Convert OSM export to roads.json format</div>
+          </div>
+        </div>
+        <div class="step-body">
+          <div class="code-block">
+<span class="comment">// scripts/parse-osm-geojson.js</span>
+<span class="comment">// Usage: node scripts/parse-osm-geojson.js docs/osm-roads.geojson</span>
+
+<span class="type">const</span> fs = <span class="cmd">require</span>(<span class="string">'fs'</span>);
+<span class="type">const</span> geo = JSON.<span class="cmd">parse</span>(
+  fs.<span class="cmd">readFileSync</span>(process.argv[<span class="number">2</span>], <span class="string">'utf-8'</span>)
+);
+
+<span class="type">const</span> roads = geo.features
+  .<span class="cmd">filter</span>(f =&gt; f.geometry.type === <span class="string">'LineString'</span>)
+  .<span class="cmd">map</span>(f =&gt; (<span class="bracket">{</span>
+    <span class="key">name</span>:   f.properties.name || <span class="string">'Unnamed Road'</span>,
+    <span class="key">type</span>:   f.properties.highway,
+    <span class="key">lanes</span>:  parseInt(f.properties.lanes) || <span class="number">2</span>,
+    <span class="key">width</span>:  parseFloat(f.properties.width) || <span class="type">null</span>,
+    <span class="key">oneway</span>: f.properties.oneway === <span class="string">'yes'</span>,
+    <span class="key">waypoints</span>: f.geometry.coordinates.<span class="cmd">map</span>(
+      ([lng, lat]) =&gt; (<span class="bracket">{</span> lat, lng <span class="bracket">}</span>)
+    ),
+  <span class="bracket">}</span>));
+
+console.<span class="cmd">log</span>(JSON.<span class="cmd">stringify</span>(roads, <span class="type">null</span>, <span class="number">2</span>));
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <hr class="divider" />
+
+    <!-- ==================== CHECKLIST ==================== -->
+    <section id="checklist" class="theme-blue">
+      <div class="section-header">
+        <div class="section-label"><span class="num">✓</span> Checklist</div>
+        <h2>Completion Checklist</h2>
+        <p>Track your progress through the data extraction process. Click checkboxes as you complete each item.</p>
+      </div>
+
+      <div class="card">
+        <h3><span class="icon">📍</span> Locations</h3>
+        <ul class="checklist">
+          <li><span class="check" onclick="toggleCheck(this)"></span> Verified GPS coordinates for D Block Surabhi Township</li>
+          <li><span class="check" onclick="toggleCheck(this)"></span> Verified GPS coordinates for Aero Mall (entrance facing airport)</li>
+          <li><span class="check" onclick="toggleCheck(this)"></span> Verified GPS coordinates for Vibgyor Yerwada School</li>
+          <li><span class="check" onclick="toggleCheck(this)"></span> Verified GPS coordinates for Planet Medical</li>
+          <li><span class="check" onclick="toggleCheck(this)"></span> Verified GPS coordinates for Momo Hub</li>
+          <li><span class="check" onclick="toggleCheck(this)"></span> Verified GPS coordinates for A7 Kumar Samrudhi Flats</li>
+          <li><span class="check" onclick="toggleCheck(this)"></span> Verified GPS coordinates for Laxmi Township 3 Kalas</li>
+          <li><span class="check" onclick="toggleCheck(this)"></span> Verified GPS coordinates for Neuron School</li>
+          <li><span class="check" onclick="toggleCheck(this)"></span> Created <code>src/config/locations.json</code> with all 9 entries</li>
+        </ul>
+      </div>
+
+      <div class="card" style="margin-top: 16px;">
+        <h3><span class="icon">🛤️</span> Roads</h3>
+        <ul class="checklist">
+          <li><span class="check" onclick="toggleCheck(this)"></span> Created Google My Maps project with all locations pinned</li>
+          <li><span class="check" onclick="toggleCheck(this)"></span> Drew road polylines for all connecting segments</li>
+          <li><span class="check" onclick="toggleCheck(this)"></span> Exported KML from Google My Maps</li>
+          <li><span class="check" onclick="toggleCheck(this)"></span> Measured road widths using Measure Distance tool</li>
+          <li><span class="check" onclick="toggleCheck(this)"></span> Verified lane counts using Street View</li>
+          <li><span class="check" onclick="toggleCheck(this)"></span> Classified each road as wide / medium / narrow</li>
+          <li><span class="check" onclick="toggleCheck(this)"></span> Created <code>src/config/roads.json</code> with all edges</li>
+        </ul>
+      </div>
+
+      <div class="card" style="margin-top: 16px;">
+        <h3><span class="icon">🔄</span> Conversion</h3>
+        <ul class="checklist">
+          <li><span class="check" onclick="toggleCheck(this)"></span> Ran KML parser script &amp; verified output</li>
+          <li><span class="check" onclick="toggleCheck(this)"></span> Set up <code>projection.js</code> with correct bounding box</li>
+          <li><span class="check" onclick="toggleCheck(this)"></span> Ran canvas conversion script &amp; verified pixel positions</li>
+          <li><span class="check" onclick="toggleCheck(this)"></span> Tested rendering on canvas — locations &amp; roads display correctly</li>
+        </ul>
+      </div>
+
+      <div class="card" style="margin-top: 16px;">
+        <h3><span class="icon">⊕</span> Optional: OSM Data</h3>
+        <ul class="checklist">
+          <li><span class="check" onclick="toggleCheck(this)"></span> Ran Overpass Turbo query &amp; downloaded GeoJSON</li>
+          <li><span class="check" onclick="toggleCheck(this)"></span> Parsed GeoJSON for lane/width metadata</li>
+          <li><span class="check" onclick="toggleCheck(this)"></span> Merged OSM data into <code>roads.json</code></li>
+        </ul>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <p>Traffic in Rain — Roads &amp; Locations Data Guide · Vishrantwadi &amp; Viman Nagar, Pune</p>
+    <p style="margin-top:6px; opacity:0.6;">Part of the Traffic in Rain Simulation project — July 2026</p>
+  </footer>
+
+  <script>
+    // Copy coordinate to clipboard
+    function copyCoord(btn, text) {
+      navigator.clipboard.writeText(text).then(() => {
+        btn.textContent = '✓ Copied';
+        btn.classList.add('copied');
+        setTimeout(() => {
+          btn.textContent = 'Copy';
+          btn.classList.remove('copied');
+        }, 2000);
+      });
+    }
+
+    // Toggle checklist item
+    function toggleCheck(el) {
+      el.classList.toggle('done');
+      el.textContent = el.classList.contains('done') ? '✓' : '';
+    }
+  </script>
+
+</body>
+</html>

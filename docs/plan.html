@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Traffic in Rain – Solution Plan</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg-primary: #0b0f1a;
+      --bg-secondary: #111827;
+      --bg-card: #1a2236;
+      --bg-card-hover: #1f2a42;
+      --accent-blue: #3b82f6;
+      --accent-cyan: #06b6d4;
+      --accent-emerald: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-rose: #f43f5e;
+      --accent-violet: #8b5cf6;
+      --text-primary: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --border: #1e293b;
+      --border-accent: #334155;
+      --gradient-blue: linear-gradient(135deg, #3b82f6, #06b6d4);
+      --gradient-rain: linear-gradient(135deg, #1e3a5f, #0b0f1a);
+      --shadow-lg: 0 10px 40px rgba(0,0,0,0.4);
+      --shadow-glow-blue: 0 0 30px rgba(59,130,246,0.15);
+      --radius: 16px;
+      --radius-sm: 10px;
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.7;
+      min-height: 100vh;
+    }
+
+    /* === HERO === */
+    .hero {
+      position: relative;
+      padding: 80px 24px 60px;
+      text-align: center;
+      overflow: hidden;
+      background: radial-gradient(ellipse at 50% 0%, rgba(59,130,246,0.12) 0%, transparent 60%),
+                  radial-gradient(ellipse at 80% 80%, rgba(6,182,212,0.08) 0%, transparent 50%),
+                  var(--bg-primary);
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -200px; left: 50%; transform: translateX(-50%);
+      width: 800px; height: 800px;
+      background: radial-gradient(circle, rgba(59,130,246,0.06) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 6px 16px;
+      background: rgba(59,130,246,0.1);
+      border: 1px solid rgba(59,130,246,0.25);
+      border-radius: 100px;
+      font-size: 0.8rem; font-weight: 500;
+      color: var(--accent-blue);
+      margin-bottom: 24px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+    .hero-badge .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent-emerald); animation: pulse-dot 2s ease-in-out infinite; }
+    @keyframes pulse-dot { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+    .hero h1 {
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      font-weight: 800;
+      background: linear-gradient(135deg, #f1f5f9 30%, #3b82f6 70%, #06b6d4);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 16px;
+      letter-spacing: -0.02em;
+    }
+    .hero p {
+      font-size: 1.1rem; color: var(--text-secondary);
+      max-width: 640px; margin: 0 auto;
+    }
+
+    /* === RAIN ANIMATION === */
+    .rain-container {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      pointer-events: none; overflow: hidden; opacity: 0.3;
+    }
+    .raindrop {
+      position: absolute; width: 1px;
+      background: linear-gradient(to bottom, transparent, rgba(59,130,246,0.6));
+      animation: rain-fall linear infinite;
+    }
+    @keyframes rain-fall {
+      0% { transform: translateY(-100px); opacity: 0; }
+      10% { opacity: 1; }
+      100% { transform: translateY(calc(100vh + 100px)); opacity: 0; }
+    }
+
+    /* === CONTAINER === */
+    .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+
+    /* === NAV (sticky TOC) === */
+    .toc-bar {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(11,15,26,0.85);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 24px;
+    }
+    .toc-inner {
+      max-width: 1100px; margin: 0 auto;
+      display: flex; gap: 8px; overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .toc-inner::-webkit-scrollbar { display: none; }
+    .toc-link {
+      flex-shrink: 0;
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 0.78rem; font-weight: 500;
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+    .toc-link:hover { color: var(--text-primary); background: rgba(59,130,246,0.1); }
+
+    /* === SECTIONS === */
+    section { padding: 60px 0; }
+    .section-header {
+      margin-bottom: 40px;
+    }
+    .section-label {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 0.75rem; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.1em;
+      margin-bottom: 10px;
+    }
+    .section-label .num {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 22px; height: 22px; border-radius: 6px;
+      font-size: 0.7rem; font-weight: 700;
+    }
+    .section-header h2 {
+      font-size: 1.8rem; font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 8px;
+    }
+    .section-header p {
+      color: var(--text-secondary); font-size: 0.95rem;
+      max-width: 680px;
+    }
+
+    /* color themes per section */
+    .theme-blue .section-label { color: var(--accent-blue); }
+    .theme-blue .num { background: rgba(59,130,246,0.15); color: var(--accent-blue); }
+    .theme-cyan .section-label { color: var(--accent-cyan); }
+    .theme-cyan .num { background: rgba(6,182,212,0.15); color: var(--accent-cyan); }
+    .theme-emerald .section-label { color: var(--accent-emerald); }
+    .theme-emerald .num { background: rgba(16,185,129,0.15); color: var(--accent-emerald); }
+    .theme-amber .section-label { color: var(--accent-amber); }
+    .theme-amber .num { background: rgba(245,158,11,0.15); color: var(--accent-amber); }
+    .theme-rose .section-label { color: var(--accent-rose); }
+    .theme-rose .num { background: rgba(244,63,94,0.15); color: var(--accent-rose); }
+    .theme-violet .section-label { color: var(--accent-violet); }
+    .theme-violet .num { background: rgba(139,92,246,0.15); color: var(--accent-violet); }
+
+    /* === CARDS === */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      transition: all 0.3s ease;
+    }
+    .card:hover {
+      border-color: var(--border-accent);
+      background: var(--bg-card-hover);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+    }
+    .card h3 {
+      font-size: 1.1rem; font-weight: 600;
+      margin-bottom: 12px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .card h3 .icon {
+      font-size: 1.3rem;
+    }
+    .card p, .card li {
+      color: var(--text-secondary); font-size: 0.9rem;
+    }
+    .card ul { list-style: none; padding: 0; }
+    .card li {
+      padding: 6px 0;
+      padding-left: 20px;
+      position: relative;
+    }
+    .card li::before {
+      content: '›';
+      position: absolute; left: 4px; top: 6px;
+      color: var(--text-muted); font-weight: 700;
+    }
+
+    .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 20px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+
+    /* === TABLE === */
+    .table-wrap {
+      overflow-x: auto;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+    }
+    table {
+      width: 100%; border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+    th {
+      text-align: left; padding: 14px 16px;
+      background: var(--bg-card);
+      color: var(--text-muted);
+      font-weight: 600; font-size: 0.75rem;
+      text-transform: uppercase; letter-spacing: 0.06em;
+      border-bottom: 1px solid var(--border);
+    }
+    td {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-secondary);
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(59,130,246,0.03); }
+
+    .tag {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 6px;
+      font-size: 0.75rem; font-weight: 500;
+    }
+    .tag-wide { background: rgba(16,185,129,0.12); color: var(--accent-emerald); }
+    .tag-narrow { background: rgba(245,158,11,0.12); color: var(--accent-amber); }
+    .tag-medium { background: rgba(59,130,246,0.12); color: var(--accent-blue); }
+
+    /* === CODE BLOCK === */
+    .code-block {
+      background: #0d1117;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 20px;
+      overflow-x: auto;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.82rem;
+      line-height: 1.8;
+      color: #c9d1d9;
+    }
+    .code-block .comment { color: #6e7681; }
+    .code-block .key { color: #79c0ff; }
+    .code-block .string { color: #a5d6ff; }
+    .code-block .number { color: #f2cc60; }
+    .code-block .type { color: #ff7b72; }
+    .code-block .bracket { color: #8b949e; }
+
+    /* === FLOW DIAGRAM (CSS-only) === */
+    .flow {
+      display: flex; align-items: center; gap: 12px;
+      flex-wrap: wrap; justify-content: center;
+      padding: 30px 0;
+    }
+    .flow-node {
+      padding: 12px 20px;
+      border-radius: var(--radius-sm);
+      font-size: 0.82rem; font-weight: 500;
+      border: 1px solid var(--border-accent);
+      background: var(--bg-card);
+      text-align: center; min-width: 120px;
+    }
+    .flow-arrow {
+      color: var(--text-muted); font-size: 1.2rem;
+    }
+
+    /* === WEATHER CARDS === */
+    .weather-card {
+      position: relative; overflow: hidden;
+    }
+    .weather-card .weather-icon {
+      position: absolute; top: 16px; right: 20px;
+      font-size: 2.5rem; opacity: 0.15;
+    }
+    .weather-card.no-rain { border-left: 3px solid var(--accent-emerald); }
+    .weather-card.light-rain { border-left: 3px solid var(--accent-blue); }
+    .weather-card.heavy-rain { border-left: 3px solid var(--accent-rose); }
+
+    /* === MAP PLACEHOLDER === */
+    .map-area {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 40px;
+      position: relative;
+      min-height: 380px;
+      overflow: hidden;
+    }
+    .map-area::before {
+      content: '';
+      position: absolute; inset: 0;
+      background:
+        linear-gradient(90deg, rgba(59,130,246,0.03) 1px, transparent 1px),
+        linear-gradient(rgba(59,130,246,0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+    .map-node {
+      position: absolute;
+      padding: 8px 14px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-accent);
+      border-radius: 8px;
+      font-size: 0.72rem; font-weight: 500;
+      white-space: nowrap;
+      z-index: 2;
+      transition: all 0.3s ease;
+    }
+    .map-node:hover {
+      border-color: var(--accent-blue);
+      box-shadow: var(--shadow-glow-blue);
+      transform: scale(1.05);
+    }
+    .map-node .dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      display: inline-block; margin-right: 6px;
+    }
+
+    /* === MILESTONE TIMELINE === */
+    .timeline { position: relative; padding-left: 32px; }
+    .timeline::before {
+      content: ''; position: absolute; left: 11px; top: 8px; bottom: 8px;
+      width: 2px; background: var(--border);
+    }
+    .timeline-item {
+      position: relative;
+      padding: 0 0 32px;
+    }
+    .timeline-item:last-child { padding-bottom: 0; }
+    .timeline-dot {
+      position: absolute; left: -32px; top: 4px;
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      border: 2px solid var(--border-accent);
+      background: var(--bg-primary);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .timeline-dot .inner {
+      width: 8px; height: 8px; border-radius: 50%;
+    }
+    .timeline-item h4 { font-size: 0.95rem; font-weight: 600; margin-bottom: 4px; }
+    .timeline-item p { color: var(--text-secondary); font-size: 0.85rem; }
+    .timeline-item .duration {
+      display: inline-block;
+      margin-top: 6px;
+      padding: 2px 10px;
+      border-radius: 6px;
+      font-size: 0.72rem; font-weight: 500;
+      background: rgba(139,92,246,0.12);
+      color: var(--accent-violet);
+    }
+
+    /* === FOOTER === */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 40px 24px;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.82rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 640px) {
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+      .hero { padding: 60px 16px 40px; }
+      section { padding: 40px 0; }
+      .flow { flex-direction: column; }
+      .flow-arrow { transform: rotate(90deg); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ==================== HERO ==================== -->
+  <header class="hero">
+    <div class="rain-container" id="rain"></div>
+    <div class="hero-badge"><span class="dot"></span> Solution Plan</div>
+    <h1>Traffic in Rain Simulation</h1>
+    <p>An interactive web simulation modelling real-world traffic behaviour in Vishrantwadi &amp; Viman Nagar, Pune — across clear, light rain, and heavy rain conditions.</p>
+  </header>
+
+  <!-- ==================== TOC BAR ==================== -->
+  <nav class="toc-bar">
+    <div class="toc-inner">
+      <a class="toc-link" href="#tech-stack">Tech Stack</a>
+      <a class="toc-link" href="#architecture">Architecture</a>
+      <a class="toc-link" href="#vehicles">Vehicles</a>
+      <a class="toc-link" href="#locations">Locations</a>
+      <a class="toc-link" href="#routes">Routes &amp; Roads</a>
+      <a class="toc-link" href="#physics">Physics Engine</a>
+      <a class="toc-link" href="#weather">Weather Model</a>
+      <a class="toc-link" href="#ui">UI &amp; Controls</a>
+      <a class="toc-link" href="#folder">Folder Structure</a>
+      <a class="toc-link" href="#milestones">Milestones</a>
+    </div>
+  </nav>
+
+  <main class="container">
+
+    <!-- ==================== 1. TECH STACK ==================== -->
+    <section id="tech-stack" class="theme-blue">
+      <div class="section-header">
+        <div class="section-label"><span class="num">1</span> Technology Stack</div>
+        <h2>Node.js Frontend with a 2D Physics Engine</h2>
+        <p>A Vite-powered project using an HTML5 Canvas renderer and Matter.js for realistic vehicle physics and collision handling.</p>
+      </div>
+
+      <div class="grid-3">
+        <div class="card">
+          <h3><span class="icon">⚡</span> Build Tool</h3>
+          <ul>
+            <li><strong>Vite</strong> — fast HMR dev server, production bundling</li>
+            <li>Vanilla JS (or TypeScript optional)</li>
+            <li>No heavy framework; keep it lightweight</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3><span class="icon">🔩</span> Physics Engine</h3>
+          <ul>
+            <li><strong>Matter.js</strong> — 2D rigid body physics</li>
+            <li>Handles collision, friction, velocity</li>
+            <li>Rain modifies friction coefficients &amp; max speeds</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3><span class="icon">🎨</span> Rendering</h3>
+          <ul>
+            <li><strong>HTML5 Canvas</strong> (2D context)</li>
+            <li>Custom renderer for roads, vehicles, rain</li>
+            <li>Layered drawing: map → vehicles → weather overlay</li>
+          </ul>
+        </div>
+      </div>
+
+      <div style="margin-top: 20px;" class="grid-2">
+        <div class="card">
+          <h3><span class="icon">📦</span> Key npm Packages</h3>
+          <ul>
+            <li><strong>matter-js</strong> — physics simulation</li>
+            <li><strong>pathfinding</strong> — A* route computation</li>
+            <li><strong>dat.gui</strong> or <strong>lil-gui</strong> — real-time controls</li>
+            <li><strong>stats.js</strong> — FPS monitoring</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3><span class="icon">🗂️</span> Dev Dependencies</h3>
+          <ul>
+            <li><strong>vite</strong> — bundler &amp; dev server</li>
+            <li><strong>eslint</strong> — code linting</li>
+            <li><strong>prettier</strong> — formatting</li>
+            <li>Optional: <strong>vitest</strong> — unit tests</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <hr style="border:none; border-top:1px solid var(--border); margin: 0;" />
+
+    <!-- ==================== 2. ARCHITECTURE ==================== -->
+    <section id="architecture" class="theme-cyan">
+      <div class="section-header">
+        <div class="section-label"><span class="num">2</span> Architecture</div>
+        <h2>High-Level System Flow</h2>
+        <p>A modular design separating configuration, simulation engine, rendering, and UI layers.</p>
+      </div>
+
+      <div class="flow">
+        <div class="flow-node">Config (JSON)<br><small style="color:var(--text-muted)">vehicles, roads, weather</small></div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-node">Simulation Engine<br><small style="color:var(--text-muted)">Matter.js + AI steering</small></div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-node">Renderer<br><small style="color:var(--text-muted)">Canvas 2D layers</small></div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-node">UI Controls<br><small style="color:var(--text-muted)">GUI panel + stats</small></div>
+      </div>
+
+      <div class="grid-2" style="margin-top: 20px;">
+        <div class="card">
+          <h3><span class="icon">🧩</span> Core Modules</h3>
+          <ul>
+            <li><strong>SimulationManager</strong> — orchestrates tick loop, spawning, removal</li>
+            <li><strong>VehicleFactory</strong> — creates entities from config</li>
+            <li><strong>RoadNetwork</strong> — graph of nodes &amp; edges with lane widths</li>
+            <li><strong>PathPlanner</strong> — A* routing with traffic-aware weights</li>
+            <li><strong>WeatherController</strong> — applies rain modifiers globally</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3><span class="icon">🔄</span> Simulation Loop</h3>
+          <ul>
+            <li>1. Spawn vehicles at origin locations (configurable rate)</li>
+            <li>2. Each vehicle picks a destination &amp; computes route</li>
+            <li>3. Steering behaviour follows road waypoints</li>
+            <li>4. Matter.js resolves physics each tick (60 Hz)</li>
+            <li>5. Remove vehicles that reach destination</li>
+            <li>6. Renderer draws updated state + rain overlay</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <hr style="border:none; border-top:1px solid var(--border); margin: 0;" />
+
+    <!-- ==================== 3. VEHICLES ==================== -->
+    <section id="vehicles" class="theme-emerald">
+      <div class="section-header">
+        <div class="section-label"><span class="num">3</span> Vehicle &amp; Pedestrian Config</div>
+        <h2>12 Entity Types</h2>
+        <p>Each vehicle/pedestrian type has distinct dimensions, speed, acceleration, rain-sensitivity, and colour for visual distinction.</p>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Type</th>
+              <th>Dimensions (m)</th>
+              <th>Max Speed (km/h)</th>
+              <th>Rain Speed Reduction</th>
+              <th>Color</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>🚶 Pedestrian</td><td>0.5 × 0.5</td><td>5</td><td>Light: 30% · Heavy: 60%</td><td style="color:#a78bfa">Violet</td></tr>
+            <tr><td>🚲 Cycle</td><td>1.8 × 0.6</td><td>18</td><td>Light: 25% · Heavy: 50%</td><td style="color:#34d399">Green</td></tr>
+            <tr><td>🛺 Three-Wheeler Auto</td><td>2.6 × 1.4</td><td>40</td><td>Light: 15% · Heavy: 35%</td><td style="color:#fbbf24">Yellow</td></tr>
+            <tr><td>🚗 Car</td><td>4.2 × 1.8</td><td>50</td><td>Light: 10% · Heavy: 25%</td><td style="color:#60a5fa">Blue</td></tr>
+            <tr><td>🚛 Small Truck (4W)</td><td>5.0 × 2.0</td><td>40</td><td>Light: 12% · Heavy: 30%</td><td style="color:#fb923c">Orange</td></tr>
+            <tr><td>🚚 Large Truck (6W)</td><td>7.5 × 2.5</td><td>35</td><td>Light: 10% · Heavy: 25%</td><td style="color:#f87171">Red</td></tr>
+            <tr><td>🚐 Matador Van (10-seat)</td><td>5.5 × 2.0</td><td>45</td><td>Light: 12% · Heavy: 28%</td><td style="color:#c084fc">Purple</td></tr>
+            <tr><td>🛵 Luggage Auto (small)</td><td>2.8 × 1.3</td><td>35</td><td>Light: 15% · Heavy: 35%</td><td style="color:#fcd34d">Gold</td></tr>
+            <tr><td>🚌 Small Bus</td><td>7.0 × 2.3</td><td>40</td><td>Light: 10% · Heavy: 22%</td><td style="color:#2dd4bf">Teal</td></tr>
+            <tr><td>🚌 Medium Bus</td><td>9.0 × 2.5</td><td>38</td><td>Light: 10% · Heavy: 22%</td><td style="color:#38bdf8">Sky</td></tr>
+            <tr><td>🚌 Large Bus</td><td>12.0 × 2.5</td><td>35</td><td>Light: 8% · Heavy: 20%</td><td style="color:#818cf8">Indigo</td></tr>
+            <tr><td>♿ Disabled 3-Wheeler</td><td>2.0 × 1.2</td><td>20</td><td>Light: 20% · Heavy: 45%</td><td style="color:#fb7185">Pink</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card" style="margin-top: 24px;">
+        <h3><span class="icon">📝</span> Sample Config Schema</h3>
+        <div class="code-block">
+<span class="comment">// config/vehicles.json</span>
+<span class="bracket">{</span>
+  <span class="key">"pedestrian"</span>: <span class="bracket">{</span>
+    <span class="key">"label"</span>: <span class="string">"Pedestrian"</span>,
+    <span class="key">"width"</span>: <span class="number">0.5</span>, <span class="key">"height"</span>: <span class="number">0.5</span>,
+    <span class="key">"maxSpeed"</span>: <span class="number">5</span>,
+    <span class="key">"acceleration"</span>: <span class="number">1.5</span>,
+    <span class="key">"friction"</span>: <span class="number">0.6</span>,
+    <span class="key">"rainModifiers"</span>: <span class="bracket">{</span>
+      <span class="key">"light"</span>: <span class="bracket">{</span> <span class="key">"speedFactor"</span>: <span class="number">0.70</span>, <span class="key">"frictionFactor"</span>: <span class="number">1.4</span> <span class="bracket">}</span>,
+      <span class="key">"heavy"</span>: <span class="bracket">{</span> <span class="key">"speedFactor"</span>: <span class="number">0.40</span>, <span class="key">"frictionFactor"</span>: <span class="number">2.0</span> <span class="bracket">}</span>
+    <span class="bracket">}</span>,
+    <span class="key">"color"</span>: <span class="string">"#a78bfa"</span>,
+    <span class="key">"spawnWeight"</span>: <span class="number">3</span>
+  <span class="bracket">}</span>,
+  <span class="comment">// ... other vehicle types</span>
+<span class="bracket">}</span>
+        </div>
+      </div>
+    </section>
+
+    <hr style="border:none; border-top:1px solid var(--border); margin: 0;" />
+
+    <!-- ==================== 4. LOCATIONS ==================== -->
+    <section id="locations" class="theme-amber">
+      <div class="section-header">
+        <div class="section-label"><span class="num">4</span> Locations</div>
+        <h2>9 Key Places in Vishrantwadi &amp; Viman Nagar</h2>
+        <p>Each location acts as a traffic origin and destination. Vehicles are spawned at one location and routed to another randomly (or via weighted distribution).</p>
+      </div>
+
+      <!-- Interactive-ish Map -->
+      <div class="map-area">
+        <!-- Nodes positioned roughly to reflect relative geography -->
+        <div class="map-node" style="top:8%; left:5%;"><span class="dot" style="background:var(--accent-emerald)"></span> D Block Surabhi Township</div>
+        <div class="map-node" style="top:10%; left:55%;"><span class="dot" style="background:var(--accent-blue)"></span> Aero Mall</div>
+        <div class="map-node" style="top:30%; left:72%;"><span class="dot" style="background:var(--accent-violet)"></span> Vibgyor Yerwada School</div>
+        <div class="map-node" style="top:38%; left:18%;"><span class="dot" style="background:var(--accent-amber)"></span> Planet Medical</div>
+        <div class="map-node" style="top:50%; left:48%;"><span class="dot" style="background:var(--accent-rose)"></span> Momo Hub</div>
+        <div class="map-node" style="top:60%; left:8%;"><span class="dot" style="background:var(--accent-cyan)"></span> A7 Kumar Samrudhi Flats</div>
+        <div class="map-node" style="top:72%; left:62%;"><span class="dot" style="background:var(--accent-emerald)"></span> Laxmi Township 3 Kalas</div>
+        <div class="map-node" style="top:88%; left:30%;"><span class="dot" style="background:var(--accent-blue)"></span> Neuron School</div>
+
+        <svg style="position:absolute; inset:0; width:100%; height:100%; z-index:1; pointer-events:none;" viewBox="0 0 1000 400" preserveAspectRatio="none">
+          <!-- Approximate road connections -->
+          <line x1="120" y1="50" x2="580" y2="55" stroke="rgba(59,130,246,0.15)" stroke-width="2" stroke-dasharray="6 4"/>
+          <line x1="580" y1="55" x2="750" y2="135" stroke="rgba(59,130,246,0.15)" stroke-width="2" stroke-dasharray="6 4"/>
+          <line x1="120" y1="50" x2="220" y2="165" stroke="rgba(59,130,246,0.15)" stroke-width="2" stroke-dasharray="6 4"/>
+          <line x1="220" y1="165" x2="500" y2="210" stroke="rgba(59,130,246,0.15)" stroke-width="2" stroke-dasharray="6 4"/>
+          <line x1="500" y1="210" x2="750" y2="135" stroke="rgba(59,130,246,0.15)" stroke-width="2" stroke-dasharray="6 4"/>
+          <line x1="500" y1="210" x2="650" y2="300" stroke="rgba(59,130,246,0.15)" stroke-width="2" stroke-dasharray="6 4"/>
+          <line x1="220" y1="165" x2="100" y2="255" stroke="rgba(59,130,246,0.15)" stroke-width="2" stroke-dasharray="6 4"/>
+          <line x1="100" y1="255" x2="330" y2="365" stroke="rgba(59,130,246,0.15)" stroke-width="2" stroke-dasharray="6 4"/>
+          <line x1="330" y1="365" x2="650" y2="300" stroke="rgba(59,130,246,0.15)" stroke-width="2" stroke-dasharray="6 4"/>
+          <line x1="500" y1="210" x2="330" y2="365" stroke="rgba(59,130,246,0.15)" stroke-width="2" stroke-dasharray="6 4"/>
+        </svg>
+      </div>
+
+      <div class="grid-2" style="margin-top: 24px;">
+        <div class="card">
+          <h3><span class="icon">📍</span> Location Config</h3>
+          <div class="code-block">
+<span class="comment">// config/locations.json</span>
+<span class="bracket">[</span>
+  <span class="bracket">{</span>
+    <span class="key">"id"</span>: <span class="string">"surabhi_d_block"</span>,
+    <span class="key">"name"</span>: <span class="string">"D Block Surabhi Township"</span>,
+    <span class="key">"x"</span>: <span class="number">120</span>, <span class="key">"y"</span>: <span class="number">80</span>,
+    <span class="key">"spawnRate"</span>: <span class="number">0.8</span>,
+    <span class="key">"attractionWeight"</span>: <span class="number">1.0</span>
+  <span class="bracket">}</span>,
+  <span class="comment">// ... 8 more locations</span>
+<span class="bracket">]</span>
+          </div>
+        </div>
+        <div class="card">
+          <h3><span class="icon">🎯</span> Spawn &amp; Destination Logic</h3>
+          <ul>
+            <li>Vehicles spawn at random locations based on <code>spawnRate</code></li>
+            <li>Destination chosen via weighted random using <code>attractionWeight</code></li>
+            <li>Commercial zones (Aero Mall, Momo Hub) get higher attraction</li>
+            <li>Schools get time-of-day based peaks</li>
+            <li>Residential areas have steady background traffic</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <hr style="border:none; border-top:1px solid var(--border); margin: 0;" />
+
+    <!-- ==================== 5. ROUTES & ROADS ==================== -->
+    <section id="routes" class="theme-rose">
+      <div class="section-header">
+        <div class="section-label"><span class="num">5</span> Routes &amp; Road Network</div>
+        <h2>Roads with Varying Widths</h2>
+        <p>The road network is a weighted graph. Edges have lane widths: wide arterial roads (4 buses wide) and narrow internal lanes (bus + car).</p>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Road Segment</th>
+              <th>From → To</th>
+              <th>Width Class</th>
+              <th>Approx. Width (m)</th>
+              <th>Lanes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Airport Road (main)</td>
+              <td>Aero Mall → Vibgyor School</td>
+              <td><span class="tag tag-wide">Wide</span></td>
+              <td>14 m</td>
+              <td>4 (2 each way)</td>
+            </tr>
+            <tr>
+              <td>Vishrantwadi Main Rd</td>
+              <td>Planet Medical → Surabhi Township</td>
+              <td><span class="tag tag-wide">Wide</span></td>
+              <td>12 m</td>
+              <td>4 (2 each way)</td>
+            </tr>
+            <tr>
+              <td>Samrudhi ↔ Momo Hub Link</td>
+              <td>A7 Kumar Samrudhi → Momo Hub</td>
+              <td><span class="tag tag-medium">Medium</span></td>
+              <td>8 m</td>
+              <td>2 (1 each way)</td>
+            </tr>
+            <tr>
+              <td>Township Internal Rd</td>
+              <td>D Block ↔ Planet Medical</td>
+              <td><span class="tag tag-narrow">Narrow</span></td>
+              <td>5 m</td>
+              <td>1 shared</td>
+            </tr>
+            <tr>
+              <td>Kalas Lane</td>
+              <td>Laxmi Township ↔ Neuron School</td>
+              <td><span class="tag tag-narrow">Narrow</span></td>
+              <td>5 m</td>
+              <td>1 shared</td>
+            </tr>
+            <tr>
+              <td>Momo Hub ↔ Vibgyor Link</td>
+              <td>Momo Hub → Vibgyor School</td>
+              <td><span class="tag tag-medium">Medium</span></td>
+              <td>7 m</td>
+              <td>2 (1 each way)</td>
+            </tr>
+            <tr>
+              <td>Neuron ↔ Samrudhi Rd</td>
+              <td>Neuron School ↔ A7 Samrudhi</td>
+              <td><span class="tag tag-narrow">Narrow</span></td>
+              <td>5 m</td>
+              <td>1 shared</td>
+            </tr>
+            <tr>
+              <td>Aero Mall ↔ Surabhi Connector</td>
+              <td>Aero Mall → D Block Surabhi</td>
+              <td><span class="tag tag-medium">Medium</span></td>
+              <td>8 m</td>
+              <td>2 (1 each way)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card" style="margin-top: 24px;">
+        <h3><span class="icon">🛤️</span> Road Config Schema</h3>
+        <div class="code-block">
+<span class="comment">// config/roads.json</span>
+<span class="bracket">{</span>
+  <span class="key">"edges"</span>: <span class="bracket">[</span>
+    <span class="bracket">{</span>
+      <span class="key">"id"</span>: <span class="string">"airport_rd_main"</span>,
+      <span class="key">"from"</span>: <span class="string">"aero_mall"</span>,
+      <span class="key">"to"</span>: <span class="string">"vibgyor_school"</span>,
+      <span class="key">"widthMeters"</span>: <span class="number">14</span>,
+      <span class="key">"lanes"</span>: <span class="number">4</span>,
+      <span class="key">"speedLimit"</span>: <span class="number">50</span>,
+      <span class="key">"waypoints"</span>: <span class="bracket">[[</span><span class="number">580</span>,<span class="number">55</span><span class="bracket">]</span>, <span class="bracket">[</span><span class="number">680</span>,<span class="number">90</span><span class="bracket">]</span>, <span class="bracket">[</span><span class="number">750</span>,<span class="number">135</span><span class="bracket">]]</span>,
+      <span class="key">"bidirectional"</span>: <span class="type">true</span>
+    <span class="bracket">}</span>
+  <span class="bracket">]</span>
+<span class="bracket">}</span>
+        </div>
+      </div>
+    </section>
+
+    <hr style="border:none; border-top:1px solid var(--border); margin: 0;" />
+
+    <!-- ==================== 6. PHYSICS ENGINE ==================== -->
+    <section id="physics" class="theme-violet">
+      <div class="section-header">
+        <div class="section-label"><span class="num">6</span> Physics Engine Details</div>
+        <h2>Matter.js Configuration</h2>
+        <p>How the physics engine models vehicle movement, collisions, and rain effects on road surfaces.</p>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <h3><span class="icon">⚙️</span> Engine Settings</h3>
+          <ul>
+            <li><strong>Tick rate:</strong> 60 Hz (16.67 ms per step)</li>
+            <li><strong>Gravity:</strong> disabled (top-down 2D view)</li>
+            <li><strong>Position iterations:</strong> 6 (collision accuracy)</li>
+            <li><strong>Velocity iterations:</strong> 4</li>
+            <li><strong>Constraint iterations:</strong> 2</li>
+            <li>Custom <code>beforeUpdate</code> event for steering forces</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3><span class="icon">🚦</span> Vehicle AI (Steering)</h3>
+          <ul>
+            <li><strong>Seek:</strong> steer toward next waypoint on route</li>
+            <li><strong>Arrive:</strong> decelerate approaching destination</li>
+            <li><strong>Separation:</strong> avoid overlapping nearby vehicles</li>
+            <li><strong>Lane keeping:</strong> tendency to stay in lane centre</li>
+            <li><strong>Speed compliance:</strong> obey road speed limits</li>
+            <li><strong>Queue:</strong> slow behind slower vehicle ahead</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:20px;">
+        <h3><span class="icon">🔬</span> Rain → Physics Mapping</h3>
+        <p style="margin-bottom: 14px;">Rain modifies the simulation parameters globally, creating realistic slowdowns:</p>
+        <div class="table-wrap" style="border:none;">
+          <table>
+            <thead>
+              <tr>
+                <th>Parameter</th>
+                <th>No Rain</th>
+                <th>Light Rain</th>
+                <th>Heavy Rain</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>Road friction coefficient</td><td>1.0</td><td>0.7</td><td>0.4</td></tr>
+              <tr><td>Braking distance multiplier</td><td>1.0×</td><td>1.5×</td><td>2.5×</td></tr>
+              <tr><td>Visibility range</td><td>∞</td><td>200 m</td><td>80 m</td></tr>
+              <tr><td>Following distance multiplier</td><td>1.0×</td><td>1.4×</td><td>2.0×</td></tr>
+              <tr><td>Pedestrian spawn rate</td><td>1.0×</td><td>0.5×</td><td>0.15×</td></tr>
+              <tr><td>Cycle spawn rate</td><td>1.0×</td><td>0.4×</td><td>0.1×</td></tr>
+              <tr><td>Waterlogging (narrow roads)</td><td>None</td><td>Mild (5% slow)</td><td>Severe (30% slow)</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <hr style="border:none; border-top:1px solid var(--border); margin: 0;" />
+
+    <!-- ==================== 7. WEATHER MODEL ==================== -->
+    <section id="weather" class="theme-blue">
+      <div class="section-header">
+        <div class="section-label"><span class="num">7</span> Weather Model</div>
+        <h2>Three Conditions Explained</h2>
+        <p>Each weather mode modifies physics, visuals, and traffic patterns to demonstrate why rain causes congestion.</p>
+      </div>
+
+      <div class="grid-3">
+        <div class="card weather-card no-rain">
+          <span class="weather-icon">☀️</span>
+          <h3>No Rain</h3>
+          <ul>
+            <li>Full speed for all vehicles</li>
+            <li>Normal friction on roads</li>
+            <li>Maximum pedestrian & cycle traffic</li>
+            <li>Clear canvas — no overlay</li>
+            <li>Baseline for comparison</li>
+          </ul>
+        </div>
+        <div class="card weather-card light-rain">
+          <span class="weather-icon">🌦️</span>
+          <h3>Light Rain</h3>
+          <ul>
+            <li>10–30% speed reduction across types</li>
+            <li>Reduced friction → longer braking</li>
+            <li>Fewer pedestrians &amp; cyclists on roads</li>
+            <li>Animated rain drops (sparse, slow)</li>
+            <li>Mild waterlogging on narrow roads</li>
+          </ul>
+        </div>
+        <div class="card weather-card heavy-rain">
+          <span class="weather-icon">🌧️</span>
+          <h3>Heavy Rain</h3>
+          <ul>
+            <li>20–60% speed reduction</li>
+            <li>Greatly reduced friction &amp; visibility</li>
+            <li>Almost no pedestrians/cyclists</li>
+            <li>Dense rain animation + fog overlay</li>
+            <li>Severe waterlogging blocking narrow roads</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:20px;">
+        <h3><span class="icon">💡</span> Why Traffic Slows in Rain — Factors Modelled</h3>
+        <ul>
+          <li><strong>Reduced tyre grip</strong> — lower friction means drivers must go slower to maintain control</li>
+          <li><strong>Poor visibility</strong> — vehicles must keep larger following distances</li>
+          <li><strong>Waterlogged roads</strong> — narrow lanes become partially blocked, creating single-lane bottlenecks</li>
+          <li><strong>Mode shift</strong> — fewer pedestrians &amp; cyclists; more autos &amp; cars → more vehicles occupy more road space</li>
+          <li><strong>Slower acceleration</strong> — cautious starts at intersections propagate delays (shockwave)</li>
+          <li><strong>Increased following distance</strong> — effective road capacity drops even when speeds are similar</li>
+        </ul>
+      </div>
+    </section>
+
+    <hr style="border:none; border-top:1px solid var(--border); margin: 0;" />
+
+    <!-- ==================== 8. UI & CONTROLS ==================== -->
+    <section id="ui" class="theme-cyan">
+      <div class="section-header">
+        <div class="section-label"><span class="num">8</span> UI &amp; Controls</div>
+        <h2>Interactive Dashboard</h2>
+        <p>Real-time controls for weather, simulation speed, vehicle mix, and live traffic metrics.</p>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <h3><span class="icon">🎛️</span> Control Panel (lil-gui)</h3>
+          <ul>
+            <li><strong>Weather toggle:</strong> No Rain / Light / Heavy (radio buttons)</li>
+            <li><strong>Simulation speed:</strong> 0.5× – 5× slider</li>
+            <li><strong>Vehicle density:</strong> Low / Medium / High</li>
+            <li><strong>Vehicle type toggles:</strong> enable/disable each of the 12 types</li>
+            <li><strong>Show routes:</strong> overlay pathfinding debug lines</li>
+            <li><strong>Pause / Reset</strong></li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3><span class="icon">📊</span> Live Metrics Overlay</h3>
+          <ul>
+            <li><strong>Active vehicles</strong> on the map (count)</li>
+            <li><strong>Average speed</strong> across all vehicles</li>
+            <li><strong>Average trip time</strong> (origin → destination)</li>
+            <li><strong>Road congestion heat-map</strong> (colour-coded edges)</li>
+            <li><strong>FPS counter</strong> (stats.js)</li>
+            <li><strong>Throughput</strong> — vehicles reaching destination / min</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top: 20px;">
+        <h3><span class="icon">🖼️</span> Canvas Layout</h3>
+        <p style="margin-bottom:10px;">The canvas fills most of the viewport with a floating control panel on the right. Layers are drawn in order:</p>
+        <ol style="color: var(--text-secondary); font-size: 0.9rem; padding-left: 20px;">
+          <li style="padding:4px 0"><strong>Layer 0 — Background:</strong> Solid dark ground with road grid texture</li>
+          <li style="padding:4px 0"><strong>Layer 1 — Roads:</strong> Road surfaces with lane markings drawn from graph data</li>
+          <li style="padding:4px 0"><strong>Layer 2 — Locations:</strong> Named markers for the 9 places</li>
+          <li style="padding:4px 0"><strong>Layer 3 — Vehicles:</strong> Coloured rectangles sized to scale, rotated to heading</li>
+          <li style="padding:4px 0"><strong>Layer 4 — Weather:</strong> Rain particles + fog overlay (transparent fill)</li>
+          <li style="padding:4px 0"><strong>Layer 5 — HUD:</strong> Stats, metrics, labels</li>
+        </ol>
+      </div>
+    </section>
+
+    <hr style="border:none; border-top:1px solid var(--border); margin: 0;" />
+
+    <!-- ==================== 9. FOLDER STRUCTURE ==================== -->
+    <section id="folder" class="theme-emerald">
+      <div class="section-header">
+        <div class="section-label"><span class="num">9</span> Project Structure</div>
+        <h2>Folder Layout</h2>
+        <p>Clean, modular structure with config-driven entities and separated concerns.</p>
+      </div>
+
+      <div class="card">
+        <div class="code-block" style="line-height: 2;">
+trafficInRain/
+├── docs/
+│   ├── req.prompt
+│   └── plan.html                <span class="comment">← this file</span>
+├── public/
+│   └── favicon.ico
+├── src/
+│   ├── main.js                  <span class="comment">← entry point, init engine + renderer</span>
+│   ├── config/
+│   │   ├── vehicles.json        <span class="comment">← 12 vehicle type definitions</span>
+│   │   ├── locations.json       <span class="comment">← 9 locations with coords & weights</span>
+│   │   ├── roads.json           <span class="comment">← road graph edges, widths, waypoints</span>
+│   │   └── weather.json         <span class="comment">← physics modifiers per weather mode</span>
+│   ├── engine/
+│   │   ├── SimulationManager.js <span class="comment">← tick loop, spawn/remove vehicles</span>
+│   │   ├── PhysicsWorld.js      <span class="comment">← Matter.js wrapper, engine config</span>
+│   │   └── SteeringBehavior.js  <span class="comment">← seek, arrive, separation, lane-keep</span>
+│   ├── entities/
+│   │   ├── Vehicle.js           <span class="comment">← base vehicle class (Matter body + AI)</span>
+│   │   ├── Pedestrian.js        <span class="comment">← pedestrian-specific logic</span>
+│   │   └── VehicleFactory.js    <span class="comment">← creates entities from config</span>
+│   ├── map/
+│   │   ├── RoadNetwork.js       <span class="comment">← graph data structure</span>
+│   │   ├── PathPlanner.js       <span class="comment">← A* pathfinding</span>
+│   │   └── MapRenderer.js       <span class="comment">← draw roads, locations, labels</span>
+│   ├── weather/
+│   │   ├── WeatherController.js <span class="comment">← manages active weather state</span>
+│   │   └── RainRenderer.js      <span class="comment">← rain particle system + fog</span>
+│   ├── ui/
+│   │   ├── ControlPanel.js      <span class="comment">← lil-gui setup</span>
+│   │   └── MetricsOverlay.js    <span class="comment">← live stats HUD</span>
+│   └── utils/
+│       ├── math.js              <span class="comment">← vector ops, lerp, clamp</span>
+│       └── random.js            <span class="comment">← weighted random, seeded rng</span>
+├── index.html
+├── style.css
+├── package.json
+├── vite.config.js
+└── README.md
+        </div>
+      </div>
+    </section>
+
+    <hr style="border:none; border-top:1px solid var(--border); margin: 0;" />
+
+    <!-- ==================== 10. MILESTONES ==================== -->
+    <section id="milestones" class="theme-violet">
+      <div class="section-header">
+        <div class="section-label"><span class="num">10</span> Implementation Milestones</div>
+        <h2>Phased Delivery Plan</h2>
+        <p>Incremental builds with demos at each phase to ensure steady progress.</p>
+      </div>
+
+      <div class="card">
+        <div class="timeline">
+          <div class="timeline-item">
+            <div class="timeline-dot"><span class="inner" style="background:var(--accent-emerald)"></span></div>
+            <h4>Phase 1 — Project Scaffold &amp; Static Map</h4>
+            <p>Init Vite project, set up folder structure, render static road network and location markers on canvas.</p>
+            <span class="duration">~2 days</span>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-dot"><span class="inner" style="background:var(--accent-blue)"></span></div>
+            <h4>Phase 2 — Physics &amp; Vehicle Spawning</h4>
+            <p>Integrate Matter.js, implement VehicleFactory, spawn vehicles at locations with basic forward movement.</p>
+            <span class="duration">~3 days</span>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-dot"><span class="inner" style="background:var(--accent-cyan)"></span></div>
+            <h4>Phase 3 — Pathfinding &amp; Steering AI</h4>
+            <p>A* path computation, steering behaviours (seek, separation, lane-keeping), vehicles follow road waypoints.</p>
+            <span class="duration">~3 days</span>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-dot"><span class="inner" style="background:var(--accent-amber)"></span></div>
+            <h4>Phase 4 — Weather System</h4>
+            <p>WeatherController with 3 modes, rain particle renderer, physics modifier application, waterlogging on narrow roads.</p>
+            <span class="duration">~2 days</span>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-dot"><span class="inner" style="background:var(--accent-rose)"></span></div>
+            <h4>Phase 5 — UI Controls &amp; Metrics</h4>
+            <p>lil-gui panel, live metrics overlay, congestion heat-map, FPS counter, vehicle type toggles.</p>
+            <span class="duration">~2 days</span>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-dot"><span class="inner" style="background:var(--accent-violet)"></span></div>
+            <h4>Phase 6 — Polish &amp; Demo</h4>
+            <p>Visual refinements, performance tuning, documentation, and final demo with all 3 weather modes side by side.</p>
+            <span class="duration">~2 days</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <p>Traffic in Rain Simulation — Solution Plan · Vishrantwadi &amp; Viman Nagar, Pune</p>
+    <p style="margin-top:6px; opacity:0.6;">Generated for project planning — July 2026</p>
+  </footer>
+
+  <!-- Rain animation script -->
+  <script>
+    const rainContainer = document.getElementById('rain');
+    for (let i = 0; i < 60; i++) {
+      const drop = document.createElement('div');
+      drop.classList.add('raindrop');
+      drop.style.left = Math.random() * 100 + '%';
+      drop.style.height = (Math.random() * 18 + 8) + 'px';
+      drop.style.animationDuration = (Math.random() * 1.2 + 0.6) + 's';
+      drop.style.animationDelay = (Math.random() * 2) + 's';
+      rainContainer.appendChild(drop);
+    }
+  </script>
+
+</body>
+</html>
