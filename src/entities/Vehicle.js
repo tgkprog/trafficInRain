@@ -1,18 +1,23 @@
 import Matter from 'matter-js';
+import weatherConfig from '../config/weather.json';
 
 export class Vehicle {
-  constructor(config, spawnPosition, destination, id) {
+  constructor(config, spawnPosition, destination, id, weatherState = 'none') {
     this.id = id;
     this.type = config.type;
     this.config = config;
     this.destination = destination;
+    this.weatherState = weatherState;
     
     // Physical properties from config
     const pixelScale = 3.5;
     const speedScale = 0.5; // Speed multiplier
     this.width = (config.widthMeters || 2) * pixelScale;
     this.height = (config.lengthMeters || 4) * pixelScale;
-    this.maxSpeed = ((config.maxSpeedKmH || 40) * 1000) / 3600 * pixelScale * speedScale; // pixels/second
+    this.baseMaxSpeed = ((config.maxSpeedKmH || 40) * 1000) / 3600 * pixelScale * speedScale; // pixels/second
+    
+    // Apply weather modifier to max speed
+    this.maxSpeed = this.calculateWeatherModifiedSpeed();
     
     // Position and movement
     this.position = { x: spawnPosition.x, y: spawnPosition.y };
@@ -32,6 +37,24 @@ export class Vehicle {
     
     // Visual properties
     this.color = config.color || this.getColorByType();
+  }
+  
+  // Calculate speed with weather modifiers
+  calculateWeatherModifiedSpeed() {
+    if (this.weatherState === 'none') {
+      return this.baseMaxSpeed;
+    }
+    
+    const rainModifier = this.config.rainModifiers?.[this.weatherState];
+    const speedFactor = rainModifier?.speedFactor || 1.0;
+    
+    return this.baseMaxSpeed * speedFactor;
+  }
+  
+  // Set weather state and update speed
+  setWeatherState(state) {
+    this.weatherState = state;
+    this.maxSpeed = this.calculateWeatherModifiedSpeed();
   }
 
   getColorByType() {

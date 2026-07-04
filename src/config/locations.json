@@ -7,8 +7,10 @@
     "lng": 73.8782,
     "spawnRate": 0.7,
     "attractionWeight": 1,
-    "x": 200,
-    "y": 950
+    "x": 210,
+    "y": 950,
+    "roadConnection": {"x": 200, "y": 950},
+    "offsetMeters": 10
   },
   {
     "id": "laxmi_township",
@@ -18,8 +20,10 @@
     "lng": 73.8765,
     "spawnRate": 0.6,
     "attractionWeight": 0.8,
-    "x": 200,
-    "y": 450
+    "x": 50,
+    "y": 450,
+    "roadConnection": {"x": 200, "y": 450},
+    "offsetMeters": 150
   },
   {
     "id": "kumar_samrudhi",
@@ -29,8 +33,10 @@
     "lng": 73.886,
     "spawnRate": 0.8,
     "attractionWeight": 1,
-    "x": 550,
-    "y": 893
+    "x": 400,
+    "y": 950,
+    "roadConnection": {"x": 550, "y": 950},
+    "offsetMeters": 150
   },
   {
     "id": "surabhi_d_block",
@@ -40,8 +46,10 @@
     "lng": 73.8965,
     "spawnRate": 0.8,
     "attractionWeight": 1,
-    "x": 550,
-    "y": 779
+    "x": 350,
+    "y": 650,
+    "roadConnection": {"x": 550, "y": 650},
+    "offsetMeters": 200
   },
   {
     "id": "neuron_school",
@@ -51,8 +59,10 @@
     "lng": 73.8936,
     "spawnRate": 1,
     "attractionWeight": 1.5,
-    "x": 550,
-    "y": 36
+    "x": 600,
+    "y": 36,
+    "roadConnection": {"x": 550, "y": 36},
+    "offsetMeters": 50
   },
   {
     "id": "momo_hub",
@@ -63,7 +73,9 @@
     "spawnRate": 0.9,
     "attractionWeight": 1.2,
     "x": 1000,
-    "y": 950
+    "y": 915,
+    "roadConnection": {"x": 1000, "y": 950},
+    "offsetMeters": 35
   },
   {
     "id": "aero_mall",
@@ -74,7 +86,9 @@
     "spawnRate": 1.2,
     "attractionWeight": 2,
     "x": 1250,
-    "y": 1079
+    "y": 1119,
+    "roadConnection": {"x": 1250, "y": 1079},
+    "offsetMeters": 40
   },
   {
     "id": "vibgyor_yerwada",
@@ -84,7 +98,9 @@
     "lng": 73.9054,
     "spawnRate": 1,
     "attractionWeight": 1.5,
-    "x": 800,
-    "y": 1093
+    "x": 850,
+    "y": 1093,
+    "roadConnection": {"x": 800, "y": 1093},
+    "offsetMeters": 50
   }
 ]

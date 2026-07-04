@@ -2,6 +2,7 @@ import { RoadNetwork } from './map/RoadNetwork.js';
 import { MapRenderer } from './map/MapRenderer.js';
 import { PhysicsWorld } from './engine/PhysicsWorld.js';
 import { VehicleSpawner } from './engine/VehicleSpawner.js';
+import { RainRenderer } from './weather/RainRenderer.js';
 
 // Import configuration data to ensure module bundler tracking
 import locations from './config/locations.json';
@@ -18,6 +19,7 @@ const roadNetwork = new RoadNetwork();
 const physicsWorld = new PhysicsWorld();
 let vehicleSpawner;
 let mapRenderer;
+let rainRenderer;
 let canvas, ctx;
 
 // Animation state
@@ -37,9 +39,10 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // Initialize renderers and spawner
   mapRenderer = new MapRenderer(canvas, ctx, roadNetwork);
+  rainRenderer = new RainRenderer(canvas, ctx);
   vehicleSpawner = new VehicleSpawner(physicsWorld, roadNetwork);
   
-  console.log('Physics world and vehicle spawner initialized.');
+  console.log('Physics world, vehicle spawner, and rain renderer initialized.');
   console.log('Locations:', roadNetwork.getLocations().length);
   console.log('Roads:', roadNetwork.getRoads().length);
 
@@ -73,6 +76,9 @@ function animate(currentTime) {
   const delta = currentTime - lastTime;
   lastTime = currentTime;
   
+  // Update rain particles
+  rainRenderer.update(delta);
+  
   // Update vehicle spawner (no physics engine needed)
   vehicleSpawner.update(currentTime, delta);
   
@@ -92,6 +98,9 @@ function render() {
   
   // Draw all vehicles
   vehicleSpawner.render(ctx);
+  
+  // Draw rain on top
+  rainRenderer.render();
 }
 
 // Weather selection triggers
@@ -112,6 +121,8 @@ function setupWeatherButtons() {
       
       weatherState = mode;
       physicsWorld.applyWeatherFriction(weatherState);
+      rainRenderer.setWeatherState(weatherState);
+      vehicleSpawner.setWeatherState(weatherState);
       
       console.log(`Weather mode toggled: ${mode.toUpperCase()}`);
       

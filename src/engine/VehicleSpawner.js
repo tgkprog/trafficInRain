@@ -12,10 +12,15 @@ export class VehicleSpawner {
     // Initialize path planner
     this.pathPlanner = new PathPlanner(roadNetwork);
     
-    // Spawn configuration
-    this.spawnRate = 2000; // milliseconds between spawns
+    // Spawn configuration - random interval between 500-1200ms
+    this.spawnRateMin = 500;
+    this.spawnRateMax = 1200;
+    this.nextSpawnTime = 0;
     this.lastSpawnTime = 0;
     this.maxVehicles = 50;
+    
+    // Weather state
+    this.weatherState = 'none';
     
     // Build weighted distribution table
     this.vehicleTypes = this.buildWeightedTypes();
@@ -66,13 +71,35 @@ export class VehicleSpawner {
     };
   }
 
+  // Set weather state
+  setWeatherState(state) {
+    this.weatherState = state;
+    
+    // Update all active vehicles with new weather state
+    this.vehicles.forEach(vehicle => {
+      if (vehicle.isActive) {
+        vehicle.setWeatherState(state);
+      }
+    });
+  }
+  
+  // Get random spawn interval
+  getRandomSpawnInterval() {
+    return this.spawnRateMin + Math.random() * (this.spawnRateMax - this.spawnRateMin);
+  }
+  
   // Update spawner (call each frame)
   update(currentTime, deltaMs) {
-    // Check if we should spawn a new vehicle
-    if (currentTime - this.lastSpawnTime > this.spawnRate && 
+    // Initialize next spawn time on first call
+    if (this.nextSpawnTime === 0) {
+      this.nextSpawnTime = currentTime + this.getRandomSpawnInterval();
+    }
+    
+    // Check if we should spawn a new vehicle (random interval)
+    if (currentTime >= this.nextSpawnTime && 
         this.vehicles.length < this.maxVehicles) {
       this.spawnVehicle();
-      this.lastSpawnTime = currentTime;
+      this.nextSpawnTime = currentTime + this.getRandomSpawnInterval();
     }
     
     // Update all active vehicles
@@ -107,7 +134,8 @@ export class VehicleSpawner {
       vehicleConfig,
       spawnPosition,
       route.destination,
-      this.nextVehicleId++
+      this.nextVehicleId++,
+      this.weatherState
     );
     
     // Generate path following roads using PathPlanner
@@ -141,9 +169,10 @@ export class VehicleSpawner {
     };
   }
 
-  // Adjust spawn rate (vehicles per second)
-  setSpawnRate(vehiclesPerSecond) {
-    this.spawnRate = 1000 / vehiclesPerSecond;
+  // Adjust spawn rate range (ms)
+  setSpawnRate(minMs, maxMs) {
+    this.spawnRateMin = minMs;
+    this.spawnRateMax = maxMs;
   }
 
   // Clear all vehicles
