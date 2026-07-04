@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GitHub Pages Setup Instructions - Traffic in Rain</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 20px;
+      line-height: 1.6;
+      background: #f5f5f5;
+    }
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #2563eb;
+      border-bottom: 3px solid #2563eb;
+      padding-bottom: 10px;
+    }
+    h2 {
+      color: #1e40af;
+      margin-top: 30px;
+      border-left: 4px solid #3b82f6;
+      padding-left: 15px;
+    }
+    h3 {
+      color: #475569;
+      margin-top: 20px;
+    }
+    code {
+      background: #f1f5f9;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-family: 'Courier New', monospace;
+      color: #dc2626;
+    }
+    pre {
+      background: #1e293b;
+      color: #e2e8f0;
+      padding: 15px;
+      border-radius: 5px;
+      overflow-x: auto;
+    }
+    pre code {
+      background: none;
+      color: #e2e8f0;
+      padding: 0;
+    }
+    .step {
+      background: #eff6ff;
+      border-left: 4px solid #3b82f6;
+      padding: 15px;
+      margin: 15px 0;
+      border-radius: 4px;
+    }
+    .step-number {
+      font-weight: bold;
+      color: #2563eb;
+      font-size: 1.2em;
+    }
+    .warning {
+      background: #fef3c7;
+      border-left: 4px solid #f59e0b;
+      padding: 15px;
+      margin: 15px 0;
+      border-radius: 4px;
+    }
+    .success {
+      background: #d1fae5;
+      border-left: 4px solid #10b981;
+      padding: 15px;
+      margin: 15px 0;
+      border-radius: 4px;
+    }
+    .info {
+      background: #e0e7ff;
+      border-left: 4px solid #6366f1;
+      padding: 15px;
+      margin: 15px 0;
+      border-radius: 4px;
+    }
+    ul {
+      padding-left: 25px;
+    }
+    li {
+      margin: 8px 0;
+    }
+    a {
+      color: #2563eb;
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    .screenshot-placeholder {
+      background: #f1f5f9;
+      border: 2px dashed #cbd5e1;
+      padding: 20px;
+      text-align: center;
+      color: #64748b;
+      margin: 15px 0;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🚀 GitHub Pages Deployment Setup</h1>
+    <p><strong>Repository:</strong> <a href="https://github.com/tgkprog/trafficInRain" target="_blank">https://github.com/tgkprog/trafficInRain</a></p>
+    <p><strong>Expected URL:</strong> <a href="https://tgkprog.github.io/trafficInRain/" target="_blank">https://tgkprog.github.io/trafficInRain/</a></p>
+
+    <div class="info">
+      <strong>ℹ️ What This Does:</strong>
+      <p>This setup will automatically build and deploy your Traffic in Rain simulation to GitHub Pages every time you push code to the <code>main</code> branch.</p>
+    </div>
+
+    <h2>📋 Prerequisites</h2>
+    <ul>
+      <li>GitHub repository: <code>tgkprog/trafficInRain</code> (already exists)</li>
+      <li>Code pushed to <code>main</code> branch</li>
+      <li>GitHub account with access to repository settings</li>
+    </ul>
+
+    <h2>🔧 One-Time GitHub Settings Configuration</h2>
+
+    <div class="step">
+      <div class="step-number">Step 1:</div>
+      <h3>Enable GitHub Pages</h3>
+      <ol>
+        <li>Go to your repository: <a href="https://github.com/tgkprog/trafficInRain" target="_blank">https://github.com/tgkprog/trafficInRain</a></li>
+        <li>Click on <strong>Settings</strong> tab (⚙️ gear icon at the top)</li>
+        <li>In the left sidebar, scroll down and click on <strong>Pages</strong></li>
+        <li>Under <strong>"Build and deployment"</strong> section:
+          <ul>
+            <li><strong>Source:</strong> Select <code>GitHub Actions</code> from the dropdown</li>
+          </ul>
+        </li>
+      </ol>
+      <div class="screenshot-placeholder">
+        📸 Settings → Pages → Source: "GitHub Actions"
+      </div>
+    </div>
+
+    <div class="warning">
+      <strong>⚠️ Important:</strong> Make sure you select <strong>"GitHub Actions"</strong> as the source, NOT "Deploy from a branch". This allows the workflow to deploy automatically.
+    </div>
+
+    <div class="step">
+      <div class="step-number">Step 2:</div>
+      <h3>Verify Workflow Permissions</h3>
+      <ol>
+        <li>Still in repository <strong>Settings</strong></li>
+        <li>In the left sidebar, click on <strong>Actions</strong> → <strong>General</strong></li>
+        <li>Scroll down to <strong>"Workflow permissions"</strong></li>
+        <li>Ensure <strong>"Read and write permissions"</strong> is selected</li>
+        <li>Ensure <strong>"Allow GitHub Actions to create and approve pull requests"</strong> is checked</li>
+        <li>Click <strong>Save</strong> if you made changes</li>
+      </ol>
+      <div class="screenshot-placeholder">
+        📸 Settings → Actions → General → Workflow permissions: "Read and write permissions"
+      </div>
+    </div>
+
+    <h2>📦 Files Already Added to Your Repository</h2>
+
+    <div class="success">
+      <strong>✅ The following files have been automatically created:</strong>
+    </div>
+
+    <h3>1. GitHub Actions Workflow</h3>
+    <p><strong>File:</strong> <code>.github/workflows/deploy.yml</code></p>
+    <p>This workflow will:</p>
+    <ul>
+      <li>Trigger on every push to <code>main</code> branch</li>
+      <li>Install Node.js 20</li>
+      <li>Install dependencies with <code>npm ci</code></li>
+      <li>Build the project with <code>npm run build</code></li>
+      <li>Deploy the <code>dist/</code> folder to GitHub Pages</li>
+    </ul>
+
+    <h3>2. Vite Configuration Update</h3>
+    <p><strong>File:</strong> <code>vite.config.js</code></p>
+    <p>Added <code>base: '/trafficInRain/'</code> to ensure correct asset paths on GitHub Pages.</p>
+
+    <h2>🚀 Deployment Process</h2>
+
+    <div class="step">
+      <div class="step-number">Step 3:</div>
+      <h3>Push Your Code</h3>
+      <p>Once you've completed Steps 1 & 2 on GitHub, push your code:</p>
+      <pre><code>git add .
+git commit -m "Add GitHub Pages deployment workflow"
+git push origin main</code></pre>
+    </div>
+
+    <div class="step">
+      <div class="step-number">Step 4:</div>
+      <h3>Monitor the Deployment</h3>
+      <ol>
+        <li>Go to your repository on GitHub</li>
+        <li>Click on the <strong>Actions</strong> tab</li>
+        <li>You should see a workflow run called "Deploy to GitHub Pages"</li>
+        <li>Click on it to see the build and deployment progress</li>
+        <li>Wait for both <strong>"build"</strong> and <strong>"deploy"</strong> jobs to complete (usually 1-2 minutes)</li>
+      </ol>
+      <div class="screenshot-placeholder">
+        📸 Actions tab → "Deploy to GitHub Pages" workflow running
+      </div>
+    </div>
+
+    <div class="success">
+      <strong>🎉 Success!</strong> Once the workflow completes, your site will be live at:
+      <p><a href="https://tgkprog.github.io/trafficInRain/" target="_blank" style="font-size: 1.2em;">https://tgkprog.github.io/trafficInRain/</a></p>
+    </div>
+
+    <h2>🔄 Future Deployments</h2>
+    <div class="info">
+      <p><strong>Automatic deployment is now enabled!</strong></p>
+      <p>Every time you push to the <code>main</code> branch, GitHub Actions will automatically:</p>
+      <ol>
+        <li>Build your project</li>
+        <li>Deploy to GitHub Pages</li>
+        <li>Update your live site (usually within 1-2 minutes)</li>
+      </ol>
+      <p>No manual steps needed! 🎉</p>
+    </div>
+
+    <h2>🐛 Troubleshooting</h2>
+
+    <h3>Problem: Workflow fails with "permission denied"</h3>
+    <p><strong>Solution:</strong> Check Step 2 above - ensure workflow permissions are set to "Read and write permissions"</p>
+
+    <h3>Problem: Site shows 404 or blank page</h3>
+    <p><strong>Possible causes:</strong></p>
+    <ul>
+      <li>Wait a few minutes after first deployment</li>
+      <li>Clear browser cache (Ctrl+Shift+R or Cmd+Shift+R)</li>
+      <li>Check that <code>base: '/trafficInRain/'</code> is in vite.config.js</li>
+      <li>Verify the workflow completed successfully in the Actions tab</li>
+    </ul>
+
+    <h3>Problem: Assets not loading (CSS, JS missing)</h3>
+    <p><strong>Solution:</strong> Verify <code>vite.config.js</code> has <code>base: '/trafficInRain/'</code> configured</p>
+
+    <h3>Problem: Workflow doesn't trigger</h3>
+    <p><strong>Checklist:</strong></p>
+    <ul>
+      <li>Ensure you pushed to the <code>main</code> branch (not master or another branch)</li>
+      <li>Check that <code>.github/workflows/deploy.yml</code> exists in your repository</li>
+      <li>Go to Settings → Actions → General and ensure Actions are enabled</li>
+    </ul>
+
+    <h2>📊 Monitoring Your Deployment</h2>
+    <p>You can always check your deployment status:</p>
+    <ul>
+      <li><strong>Actions Tab:</strong> <a href="https://github.com/tgkprog/trafficInRain/actions" target="_blank">https://github.com/tgkprog/trafficInRain/actions</a></li>
+      <li><strong>Environments:</strong> Repository → Settings → Environments → github-pages</li>
+      <li><strong>Deployments:</strong> Repository → Deployments (right sidebar on main page)</li>
+    </ul>
+
+    <h2>✅ Verification Checklist</h2>
+    <div class="step">
+      <p>After deployment, verify everything works:</p>
+      <ul>
+        <li>☐ Site loads at <a href="https://tgkprog.github.io/trafficInRain/" target="_blank">https://tgkprog.github.io/trafficInRain/</a></li>
+        <li>☐ Canvas displays correctly</li>
+        <li>☐ Weather controls work (No Rain, Light Rain, Heavy Rain)</li>
+        <li>☐ Vehicles spawn and move correctly</li>
+        <li>☐ Rain animation appears in Light/Heavy rain modes</li>
+        <li>☐ Control panel is accessible by scrolling</li>
+        <li>☐ No console errors (F12 → Console tab)</li>
+      </ul>
+    </div>
+
+    <h2>📝 Summary</h2>
+    <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+      <tr style="background: #f1f5f9;">
+        <th style="padding: 10px; text-align: left; border: 1px solid #cbd5e1;">Item</th>
+        <th style="padding: 10px; text-align: left; border: 1px solid #cbd5e1;">Details</th>
+      </tr>
+      <tr>
+        <td style="padding: 10px; border: 1px solid #cbd5e1;"><strong>Repository</strong></td>
+        <td style="padding: 10px; border: 1px solid #cbd5e1;">tgkprog/trafficInRain</td>
+      </tr>
+      <tr style="background: #f9fafb;">
+        <td style="padding: 10px; border: 1px solid #cbd5e1;"><strong>Live URL</strong></td>
+        <td style="padding: 10px; border: 1px solid #cbd5e1;"><a href="https://tgkprog.github.io/trafficInRain/">https://tgkprog.github.io/trafficInRain/</a></td>
+      </tr>
+      <tr>
+        <td style="padding: 10px; border: 1px solid #cbd5e1;"><strong>Trigger</strong></td>
+        <td style="padding: 10px; border: 1px solid #cbd5e1;">Push to <code>main</code> branch</td>
+      </tr>
+      <tr style="background: #f9fafb;">
+        <td style="padding: 10px; border: 1px solid #cbd5e1;"><strong>Build Time</strong></td>
+        <td style="padding: 10px; border: 1px solid #cbd5e1;">~1-2 minutes</td>
+      </tr>
+      <tr>
+        <td style="padding: 10px; border: 1px solid #cbd5e1;"><strong>Source Files</strong></td>
+        <td style="padding: 10px; border: 1px solid #cbd5e1;"><code>.github/workflows/deploy.yml</code><br><code>vite.config.js</code></td>
+      </tr>
+    </table>
+
+    <div class="success">
+      <strong>🎊 Congratulations!</strong>
+      <p>Your Traffic in Rain simulation is now set up for automatic deployment to GitHub Pages. Every code push to <code>main</code> will trigger a new deployment.</p>
+      <p style="margin-top: 15px;">
+        <strong>Next step:</strong> Complete Step 1 & 2 on GitHub, then push your code!
+      </p>
+    </div>
+
+    <hr style="margin: 30px 0; border: none; border-top: 2px solid #e2e8f0;">
+    <p style="text-align: center; color: #64748b; font-size: 0.9em;">
+      Last updated: July 2026<br>
+      <a href="https://github.com/tgkprog/trafficInRain">GitHub Repository</a> | 
+      <a href="https://tgkprog.github.io/trafficInRain/">Live Demo</a>
+    </p>
+  </div>
+</body>
+</html>

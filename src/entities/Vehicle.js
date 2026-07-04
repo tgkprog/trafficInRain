@@ -1,6 +1,3 @@
-import Matter from 'matter-js';
-import weatherConfig from '../config/weather.json';
-
 export class Vehicle {
   constructor(config, spawnPosition, destination, id, weatherState = 'none') {
     this.id = id;
@@ -24,9 +21,6 @@ export class Vehicle {
     this.velocity = { x: 0, y: 0 };
     this.angle = 0;
     
-    // We don't need Matter.js physics anymore - using direct position control
-    this.body = null;
-    
     // Navigation state
     this.currentWaypointIndex = 0;
     this.path = []; // Will be set by PathPlanner
@@ -34,6 +28,8 @@ export class Vehicle {
     // Vehicle state
     this.isActive = true;
     this.distanceTraveled = 0;
+    this.currentSpeed = 0; // Track current speed for analytics
+    this.travelTime = 0; // Track total travel time in ms
     
     // Visual properties
     this.color = config.color || this.getColorByType();
@@ -75,8 +71,8 @@ export class Vehicle {
     return colorMap[this.type] || '#94a3b8';
   }
 
-  // Update vehicle position - simple waypoint following
-  update(deltaMs) {
+  // Update vehicle position with dynamic speed modulation
+  update(deltaMs, allVehicles = []) {
     if (!this.isActive || this.path.length === 0) return;
     
     const target = this.getCurrentTarget();
@@ -96,18 +92,73 @@ export class Vehicle {
       return;
     }
     
-    // Move toward target at constant speed
-    const moveSpeed = this.maxSpeed * (deltaMs / 1000); // pixels per frame
+    // Dynamic speed calculation based on nearby vehicles
+    const currentSpeed = this.calculateDynamicSpeed(allVehicles);
+    this.currentSpeed = currentSpeed; // Store for analytics
+    
+    // Calculate movement direction (normalized)
+    const directionX = dx / distance;
+    const directionY = dy / distance;
+    
+    // Move toward target at dynamic speed
+    const moveSpeed = currentSpeed * (deltaMs / 1000); // pixels per frame
     const moveAmount = Math.min(moveSpeed, distance);
     
-    this.position.x += (dx / distance) * moveAmount;
-    this.position.y += (dy / distance) * moveAmount;
+    // Simple direct movement - no physics, just follow waypoints
+    this.position.x += directionX * moveAmount;
+    this.position.y += directionY * moveAmount;
     
     // Update angle to face direction
     this.angle = Math.atan2(dy, dx);
     
-    // Update distance traveled
+    // Update distance traveled and travel time
     this.distanceTraveled += moveAmount;
+    this.travelTime += deltaMs;
+  }
+  
+  // Calculate dynamic speed based on nearby vehicles and weather
+  calculateDynamicSpeed(allVehicles) {
+    let speedFactor = 1.0;
+    
+    // Check for nearby vehicles in front
+    const checkDistance = 80; // Check vehicles within 80 pixels ahead
+    const slowdownDistance = 50; // Start slowing down at 50 pixels
+    
+    for (const other of allVehicles) {
+      if (other.id === this.id || !other.isActive) continue;
+      
+      // Calculate distance to other vehicle
+      const dx = other.position.x - this.position.x;
+      const dy = other.position.y - this.position.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      
+      if (dist < checkDistance) {
+        // Check if vehicle is ahead (in same direction)
+        const angleToOther = Math.atan2(dy, dx);
+        const angleDiff = Math.abs(angleToOther - this.angle);
+        
+        // If vehicle is roughly ahead (within 60 degrees)
+        if (angleDiff < Math.PI / 3 || angleDiff > (5 * Math.PI) / 3) {
+          // Reduce speed based on distance
+          if (dist < slowdownDistance) {
+            const slowdownFactor = dist / slowdownDistance;
+            speedFactor = Math.min(speedFactor, slowdownFactor * 0.6 + 0.2);
+          } else {
+            speedFactor = Math.min(speedFactor, 0.85);
+          }
+        }
+      }
+    }
+    
+    // Additional weather-based random slowdowns for congestion effect
+    if (this.weatherState !== 'none') {
+      // Random chance of slowdown (simulate caution, visibility issues)
+      if (Math.random() < 0.02) { // 2% chance each frame
+        speedFactor *= (this.weatherState === 'heavy' ? 0.6 : 0.8);
+      }
+    }
+    
+    return this.maxSpeed * speedFactor;
   }
 
   // Get current waypoint target

@@ -3,8 +3,7 @@ import { PathPlanner } from '../map/PathPlanner.js';
 import vehiclesConfig from '../config/vehicles.json';
 
 export class VehicleSpawner {
-  constructor(physicsWorld, roadNetwork) {
-    this.physicsWorld = physicsWorld;
+  constructor(roadNetwork) {
     this.roadNetwork = roadNetwork;
     this.vehicles = [];
     this.nextVehicleId = 1;
@@ -12,12 +11,13 @@ export class VehicleSpawner {
     // Initialize path planner
     this.pathPlanner = new PathPlanner(roadNetwork);
     
-    // Spawn configuration - random interval between 500-1200ms
-    this.spawnRateMin = 500;
-    this.spawnRateMax = 1200;
+    // Spawn configuration
+    this.spawnRateMin = 500;  // Min interval between spawns (ms)
+    this.spawnRateMax = 1200; // Max interval between spawns (ms)
+    this.maxSpawnsPer5Sec = 8; // Maximum vehicles to spawn in any 5-second window
+    this.spawnHistory = []; // Track recent spawns for rate limiting
     this.nextSpawnTime = 0;
     this.lastSpawnTime = 0;
-    this.maxVehicles = 50;
     
     // Weather state
     this.weatherState = 'none';
@@ -83,6 +83,16 @@ export class VehicleSpawner {
     });
   }
   
+  // Check if we can spawn based on 5-second rate limit
+  canSpawnVehicle(currentTime) {
+    // Clean up spawn history older than 5 seconds
+    const fiveSecondsAgo = currentTime - 5000;
+    this.spawnHistory = this.spawnHistory.filter(time => time > fiveSecondsAgo);
+    
+    // Check if we're under the limit
+    return this.spawnHistory.length < this.maxSpawnsPer5Sec;
+  }
+  
   // Get random spawn interval
   getRandomSpawnInterval() {
     return this.spawnRateMin + Math.random() * (this.spawnRateMax - this.spawnRateMin);
@@ -95,17 +105,16 @@ export class VehicleSpawner {
       this.nextSpawnTime = currentTime + this.getRandomSpawnInterval();
     }
     
-    // Check if we should spawn a new vehicle (random interval)
-    if (currentTime >= this.nextSpawnTime && 
-        this.vehicles.length < this.maxVehicles) {
-      this.spawnVehicle();
+    // Check if we should spawn a new vehicle (random interval + rate limit)
+    if (currentTime >= this.nextSpawnTime && this.canSpawnVehicle(currentTime)) {
+      this.spawnVehicle(currentTime);
       this.nextSpawnTime = currentTime + this.getRandomSpawnInterval();
     }
     
-    // Update all active vehicles
+    // Update all active vehicles with traffic awareness
     this.vehicles.forEach(vehicle => {
       if (vehicle.isActive) {
-        vehicle.update(deltaMs);
+        vehicle.update(deltaMs, this.vehicles);
       }
     });
     
@@ -114,7 +123,7 @@ export class VehicleSpawner {
   }
 
   // Spawn a new vehicle
-  spawnVehicle() {
+  spawnVehicle(currentTime) {
     // Select vehicle type and route
     const vehicleConfig = this.selectRandomVehicleType();
     const route = this.selectRandomRoute();
@@ -144,6 +153,9 @@ export class VehicleSpawner {
     
     this.vehicles.push(vehicle);
     
+    // Record spawn time for rate limiting
+    this.spawnHistory.push(currentTime);
+    
     console.log(`Spawned ${vehicle.type} (ID: ${vehicle.id}) from ${route.origin.name} to ${route.destination.name}, waypoints: ${waypoints.length}`);
     
     return vehicle;
@@ -163,9 +175,29 @@ export class VehicleSpawner {
 
   // Get statistics
   getStats() {
+    // Calculate average speed of all active vehicles
+    let totalSpeed = 0;
+    let activeCount = 0;
+    
+    this.vehicles.forEach(vehicle => {
+      if (vehicle.isActive && vehicle.currentSpeed) {
+        totalSpeed += vehicle.currentSpeed;
+        activeCount++;
+      }
+    });
+    
+    const avgSpeed = activeCount > 0 ? totalSpeed / activeCount : 0;
+    
+    // Convert from pixels/sec to km/h (approximate, using pixelScale)
+    const pixelScale = 3.5;
+    const speedScale = 0.5;
+    const avgSpeedKmH = (avgSpeed / (pixelScale * speedScale)) * 3.6;
+    
     return {
       activeVehicles: this.vehicles.length,
-      totalSpawned: this.nextVehicleId - 1
+      totalSpawned: this.nextVehicleId - 1,
+      avgSpeed: avgSpeed,
+      avgSpeedKmH: Math.round(avgSpeedKmH)
     };
   }
 
@@ -174,6 +206,12 @@ export class VehicleSpawner {
     this.spawnRateMin = minMs;
     this.spawnRateMax = maxMs;
   }
+  
+  // Set maximum spawns per 5 seconds
+  setMaxSpawnsPer5Sec(max) {
+    this.maxSpawnsPer5Sec = max;
+    console.log(`Spawn rate limit set to ${max} vehicles per 5 seconds`);
+  }
 
   // Clear all vehicles
   clear() {
@@ -181,5 +219,6 @@ export class VehicleSpawner {
       vehicle.destroy();
     });
     this.vehicles = [];
+    this.spawnHistory = [];
   }
 }

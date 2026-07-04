@@ -86,7 +86,7 @@ export class PathPlanner {
       const connection = neighbors.find(n => n.to === to);
       
       if (connection) {
-        // Add all waypoints from this road segment
+        // Add all waypoints from this road segment with left-side offset
         connection.waypoints.forEach((wp, idx) => {
           // Skip first waypoint if it's duplicate of last waypoint
           if (waypoints.length > 0 && idx === 0) {
@@ -95,11 +95,51 @@ export class PathPlanner {
               return;
             }
           }
-          waypoints.push({ x: wp.x, y: wp.y });
+          
+          // Calculate offset for left-side driving (India)
+          const offsetWaypoint = this.applyLeftSideOffset(wp, connection.waypoints, idx);
+          waypoints.push(offsetWaypoint);
         });
       }
     }
     
     return waypoints;
+  }
+
+  // Apply left-side offset to waypoint (India-style driving)
+  applyLeftSideOffset(waypoint, waypointArray, index) {
+    const offsetDistance = 8; // 8 pixels to the left of center
+    
+    // Calculate direction of travel
+    let dx, dy;
+    if (index < waypointArray.length - 1) {
+      // Use direction to next waypoint
+      dx = waypointArray[index + 1].x - waypoint.x;
+      dy = waypointArray[index + 1].y - waypoint.y;
+    } else if (index > 0) {
+      // Use direction from previous waypoint
+      dx = waypoint.x - waypointArray[index - 1].x;
+      dy = waypoint.y - waypointArray[index - 1].y;
+    } else {
+      // Single waypoint, no offset
+      return { x: waypoint.x, y: waypoint.y };
+    }
+    
+    // Normalize direction
+    const length = Math.sqrt(dx * dx + dy * dy);
+    if (length === 0) return { x: waypoint.x, y: waypoint.y };
+    
+    dx /= length;
+    dy /= length;
+    
+    // Calculate perpendicular vector (rotate 90 degrees left for left-side driving)
+    const perpX = -dy;
+    const perpY = dx;
+    
+    // Apply offset to the left
+    return {
+      x: waypoint.x + perpX * offsetDistance,
+      y: waypoint.y + perpY * offsetDistance
+    };
   }
 }

@@ -9,11 +9,11 @@
     "spawnWeight": 10,
     "rainModifiers": {
       "light": {
-        "speedFactor": 0.7,
+        "speedFactor": 0.8,
         "spawnFactor": 0.5
       },
       "heavy": {
-        "speedFactor": 0.4,
+        "speedFactor": 0.5,
         "spawnFactor": 0.15
       }
     }
@@ -28,7 +28,7 @@
     "spawnWeight": 8,
     "rainModifiers": {
       "light": {
-        "speedFactor": 0.75,
+        "speedFactor": 0.8,
         "spawnFactor": 0.4
       },
       "heavy": {
@@ -47,11 +47,11 @@
     "spawnWeight": 15,
     "rainModifiers": {
       "light": {
-        "speedFactor": 0.85,
+        "speedFactor": 0.8,
         "spawnFactor": 1.1
       },
       "heavy": {
-        "speedFactor": 0.65,
+        "speedFactor": 0.5,
         "spawnFactor": 0.8
       }
     }
@@ -66,11 +66,11 @@
     "spawnWeight": 20,
     "rainModifiers": {
       "light": {
-        "speedFactor": 0.9,
+        "speedFactor": 0.8,
         "spawnFactor": 1.2
       },
       "heavy": {
-        "speedFactor": 0.75,
+        "speedFactor": 0.5,
         "spawnFactor": 1
       }
     }
@@ -85,11 +85,11 @@
     "spawnWeight": 6,
     "rainModifiers": {
       "light": {
-        "speedFactor": 0.88,
+        "speedFactor": 0.8,
         "spawnFactor": 0.9
       },
       "heavy": {
-        "speedFactor": 0.7,
+        "speedFactor": 0.5,
         "spawnFactor": 0.6
       }
     }
@@ -104,11 +104,11 @@
     "spawnWeight": 3,
     "rainModifiers": {
       "light": {
-        "speedFactor": 0.9,
+        "speedFactor": 0.8,
         "spawnFactor": 0.8
       },
       "heavy": {
-        "speedFactor": 0.75,
+        "speedFactor": 0.5,
         "spawnFactor": 0.5
       }
     }
@@ -123,11 +123,11 @@
     "spawnWeight": 7,
     "rainModifiers": {
       "light": {
-        "speedFactor": 0.88,
+        "speedFactor": 0.8,
         "spawnFactor": 1
       },
       "heavy": {
-        "speedFactor": 0.72,
+        "speedFactor": 0.5,
         "spawnFactor": 0.8
       }
     }
@@ -142,11 +142,11 @@
     "spawnWeight": 8,
     "rainModifiers": {
       "light": {
-        "speedFactor": 0.85,
+        "speedFactor": 0.8,
         "spawnFactor": 0.9
       },
       "heavy": {
-        "speedFactor": 0.65,
+        "speedFactor": 0.5,
         "spawnFactor": 0.6
       }
     }
@@ -161,11 +161,11 @@
     "spawnWeight": 4,
     "rainModifiers": {
       "light": {
-        "speedFactor": 0.9,
+        "speedFactor": 0.8,
         "spawnFactor": 1
       },
       "heavy": {
-        "speedFactor": 0.78,
+        "speedFactor": 0.5,
         "spawnFactor": 0.9
       }
     }
@@ -180,11 +180,11 @@
     "spawnWeight": 3,
     "rainModifiers": {
       "light": {
-        "speedFactor": 0.9,
+        "speedFactor": 0.8,
         "spawnFactor": 1
       },
       "heavy": {
-        "speedFactor": 0.78,
+        "speedFactor": 0.5,
         "spawnFactor": 0.9
       }
     }
@@ -199,11 +199,11 @@
     "spawnWeight": 2,
     "rainModifiers": {
       "light": {
-        "speedFactor": 0.92,
+        "speedFactor": 0.8,
         "spawnFactor": 1
       },
       "heavy": {
-        "speedFactor": 0.8,
+        "speedFactor": 0.5,
         "spawnFactor": 0.9
       }
     }
@@ -222,7 +222,7 @@
         "spawnFactor": 0.7
       },
       "heavy": {
-        "speedFactor": 0.55,
+        "speedFactor": 0.5,
         "spawnFactor": 0.3
       }
     }

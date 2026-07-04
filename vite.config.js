@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite';
 
 export default defineConfig({
+  base: '/trafficInRain/',
   server: {
     port: 3000,
     open: true
