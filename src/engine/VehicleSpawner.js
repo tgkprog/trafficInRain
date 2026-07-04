@@ -14,13 +14,19 @@ export class VehicleSpawner {
     // Spawn configuration
     this.spawnRateMin = 300;  // Min interval between spawns (ms)
     this.spawnRateMax = 800; // Max interval between spawns (ms)
-    this.maxSpawnsPer10Sec = 4; // Maximum vehicles to spawn in any 10-second window
+    this.maxSpawnsPer10Sec = 15; // Maximum vehicles to spawn in any 10-second window
     this.spawnHistory = []; // Track recent spawns for rate limiting
     this.nextSpawnTime = 0;
     this.lastSpawnTime = 0;
     
     // Weather state
     this.weatherState = 'none';
+    
+    // Rain speed modifiers (default values matching config)
+    this.rainSpeedModifiers = {
+      light: 0.8,  // 80% speed in light rain
+      heavy: 0.5   // 50% speed in heavy rain
+    };
     
     // Build weighted distribution table
     this.vehicleTypes = this.buildWeightedTypes();
@@ -75,12 +81,37 @@ export class VehicleSpawner {
   setWeatherState(state) {
     this.weatherState = state;
     
-    // Update all active vehicles with new weather state
+    // Update all active vehicles with new weather state and rain modifiers
     this.vehicles.forEach(vehicle => {
       if (vehicle.isActive) {
-        vehicle.setWeatherState(state);
+        vehicle.setWeatherState(state, this.rainSpeedModifiers);
       }
     });
+  }
+  
+  // Set rain speed modifiers
+  setRainSpeedModifiers(lightFactor, heavyFactor) {
+    this.rainSpeedModifiers.light = lightFactor;
+    this.rainSpeedModifiers.heavy = heavyFactor;
+    
+    // Update all active vehicles with new modifiers
+    this.vehicles.forEach(vehicle => {
+      if (vehicle.isActive) {
+        vehicle.setWeatherState(this.weatherState, this.rainSpeedModifiers);
+      }
+    });
+    
+    console.log(`Rain speed modifiers updated - Light: ${(lightFactor * 100)}%, Heavy: ${(heavyFactor * 100)}%`);
+  }
+  
+  // Get current rain speed modifiers
+  getRainSpeedModifiers() {
+    return {
+      light: this.rainSpeedModifiers.light,
+      heavy: this.rainSpeedModifiers.heavy,
+      lightPercent: Math.round(this.rainSpeedModifiers.light * 100),
+      heavyPercent: Math.round(this.rainSpeedModifiers.heavy * 100)
+    };
   }
   
   // Check if we can spawn based on 10-second rate limit
@@ -144,7 +175,8 @@ export class VehicleSpawner {
       spawnPosition,
       route.destination,
       this.nextVehicleId++,
-      this.weatherState
+      this.weatherState,
+      this.rainSpeedModifiers
     );
     
     // Generate path following roads using PathPlanner

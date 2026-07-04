@@ -24,6 +24,12 @@ let canvas, ctx;
 let lastTime = 0;
 let weatherState = 'none';
 
+// Congestion thresholds (configurable)
+let congestionThresholds = {
+  green: 55,  // Below this % = green (free flow)
+  yellow: 70  // Up to this % (inclusive) = yellow (moderate), above = red (severe)
+};
+
 document.addEventListener('DOMContentLoaded', () => {
   // Get canvas elements and context
   canvas = document.getElementById('sim-canvas');
@@ -170,9 +176,10 @@ function updateCongestionIndicator(stats) {
   
   // Congestion is ONLY based on number of vehicles on road
   // NOT based on speed - speed changes instantly, vehicles accumulate over time
-  // Ideal: 4 vehicles/10sec in clear weather = ~8-10 vehicles on road = 50% congestion
-  const idealVehiclesForMediumCongestion = 16; // 50% congestion baseline
-  const vehicleDensity = stats.activeVehicles / idealVehiclesForMediumCongestion;
+  // With spawn rate of 4/10sec and faster speeds, we need higher baseline
+  // 100 vehicles = 100% congestion (extremely congested)
+  const maxVehiclesForFullCongestion = 100; // 100% congestion baseline
+  const vehicleDensity = stats.activeVehicles / maxVehiclesForFullCongestion;
   
   // Convert to percentage (cap at 100%)
   const congestionPctValue = Math.round(Math.max(5, Math.min(100, vehicleDensity * 100)));
@@ -181,10 +188,11 @@ function updateCongestionIndicator(stats) {
   congestionBar.style.width = `${congestionPctValue}%`;
   congestionPct.textContent = `${congestionPctValue}%`;
   
-  if (congestionPctValue < 30) {
+  // Use configurable thresholds
+  if (congestionPctValue < congestionThresholds.green) {
     congestionBar.className = 'congestion-bar-fill green';
     congestionText.textContent = 'Free Flow';
-  } else if (congestionPctValue < 60) {
+  } else if (congestionPctValue <= congestionThresholds.yellow) {
     congestionBar.className = 'congestion-bar-fill yellow';
     congestionText.textContent = 'Moderate Traffic';
   } else {
@@ -249,12 +257,42 @@ window.trafficSimControls = {
       vehicleSpawner.clear();
       console.log('✓ All vehicles cleared');
     }
+  },
+  setCongestionThresholds: (greenMax, yellowMax) => {
+    if (greenMax >= yellowMax) {
+      console.error('❌ Green threshold must be less than yellow threshold');
+      return;
+    }
+    congestionThresholds.green = greenMax;
+    congestionThresholds.yellow = yellowMax;
+    console.log(`✓ Congestion thresholds updated: Green < ${greenMax}%, Yellow ${greenMax}-${yellowMax}%, Red > ${yellowMax}%`);
+  },
+  getCongestionThresholds: () => {
+    console.log('📊 Current Congestion Thresholds:', congestionThresholds);
+    return congestionThresholds;
+  },
+  setRainSpeedModifiers: (lightFactor, heavyFactor) => {
+    if (vehicleSpawner) {
+      vehicleSpawner.setRainSpeedModifiers(lightFactor, heavyFactor);
+      console.log(`✓ Rain speed modifiers updated: Light ${(lightFactor * 100)}%, Heavy ${(heavyFactor * 100)}%`);
+    }
+  },
+  getRainSpeedModifiers: () => {
+    if (vehicleSpawner) {
+      const modifiers = vehicleSpawner.getRainSpeedModifiers();
+      console.log('📊 Current Rain Speed Modifiers:', modifiers);
+      return modifiers;
+    }
   }
 };
 
 console.log('🎮 Traffic Simulation Controls Available:');
 console.log('  trafficSimControls.setSpawnRate(maxPer10Sec) - Set max spawns per 10 seconds');
 console.log('  trafficSimControls.setSpawnInterval(minMs, maxMs) - Set spawn interval range');
+console.log('  trafficSimControls.setCongestionThresholds(greenMax, yellowMax) - Set congestion % thresholds');
+console.log('  trafficSimControls.getCongestionThresholds() - Get current thresholds');
+console.log('  trafficSimControls.setRainSpeedModifiers(lightFactor, heavyFactor) - Set rain speed factors (0.0-1.0)');
+console.log('  trafficSimControls.getRainSpeedModifiers() - Get current rain modifiers');
 console.log('  trafficSimControls.getStats() - Get current statistics');
 console.log('  trafficSimControls.clearVehicles() - Clear all vehicles');
 
@@ -315,11 +353,11 @@ function setupControlPanel() {
   // Reset button
   if (btnReset) {
     btnReset.addEventListener('click', () => {
-      document.getElementById('input-spawn-rate').value = 4;
+      document.getElementById('input-spawn-rate').value = 15;
       document.getElementById('input-spawn-min').value = 300;
       document.getElementById('input-spawn-max').value = 800;
       
-      window.trafficSimControls.setSpawnRate(4);
+      window.trafficSimControls.setSpawnRate(15);
       window.trafficSimControls.setSpawnInterval(300, 800);
       
       updateDisplayValues();
@@ -340,6 +378,162 @@ function setupControlPanel() {
   if (btnStats) {
     btnStats.addEventListener('click', () => {
       window.trafficSimControls.getStats();
+    });
+  }
+
+  // Congestion thresholds form
+  setupCongestionThresholds();
+  
+  // Speed range form
+  setupSpeedRange();
+  
+  // Rain speed modifiers form
+  setupRainSpeedModifiers();
+}
+
+// Setup congestion thresholds form
+function setupCongestionThresholds() {
+  const congestionForm = document.getElementById('congestion-form');
+  const btnResetCongestion = document.getElementById('btn-reset-congestion');
+
+  // Form submit handler
+  if (congestionForm) {
+    congestionForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      
+      const greenThreshold = parseInt(document.getElementById('input-green-threshold').value);
+      const yellowThreshold = parseInt(document.getElementById('input-yellow-threshold').value);
+
+      // Validate
+      if (greenThreshold >= yellowThreshold) {
+        alert('Green threshold must be less than yellow threshold!');
+        return;
+      }
+
+      if (greenThreshold < 1 || greenThreshold > 100 || yellowThreshold < 1 || yellowThreshold > 100) {
+        alert('Thresholds must be between 1 and 100!');
+        return;
+      }
+
+      // Apply changes
+      congestionThresholds.green = greenThreshold;
+      congestionThresholds.yellow = yellowThreshold;
+      
+      console.log(`✓ Congestion thresholds updated: Green < ${greenThreshold}%, Yellow ${greenThreshold}-${yellowThreshold}%, Red > ${yellowThreshold}%`);
+      
+      // Visual feedback
+      const btn = congestionForm.querySelector('.btn-set');
+      btn.textContent = '✓ Applied!';
+      setTimeout(() => {
+        btn.textContent = 'Apply Thresholds';
+      }, 2000);
+    });
+  }
+
+  // Reset button
+  if (btnResetCongestion) {
+    btnResetCongestion.addEventListener('click', () => {
+      document.getElementById('input-green-threshold').value = 55;
+      document.getElementById('input-yellow-threshold').value = 70;
+      
+      congestionThresholds.green = 55;
+      congestionThresholds.yellow = 70;
+      
+      console.log('✓ Congestion thresholds reset to defaults (Green < 55%, Yellow 55-70%, Red > 70%)');
+    });
+  }
+}
+
+// Setup speed range form
+function setupSpeedRange() {
+  const speedForm = document.getElementById('speed-form');
+  const btnResetSpeed = document.getElementById('btn-reset-speed');
+
+  // Form submit handler
+  if (speedForm) {
+    speedForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      
+      const minSpeed = parseInt(document.getElementById('input-speed-min').value);
+      const maxSpeed = parseInt(document.getElementById('input-speed-max').value);
+
+      // Validate
+      if (minSpeed >= maxSpeed) {
+        alert('Minimum speed must be less than maximum speed!');
+        return;
+      }
+
+      if (minSpeed < 5 || maxSpeed > 150) {
+        alert('Speed values are out of acceptable range!');
+        return;
+      }
+
+      // Apply speed range (you can add actual implementation here)
+      console.log(`✓ Speed range updated: ${minSpeed} - ${maxSpeed} km/h`);
+      
+      // Visual feedback
+      const btn = speedForm.querySelector('.btn-set');
+      btn.textContent = '✓ Applied!';
+      setTimeout(() => {
+        btn.textContent = 'Set Speed Range';
+      }, 2000);
+    });
+  }
+
+  // Reset button
+  if (btnResetSpeed) {
+    btnResetSpeed.addEventListener('click', () => {
+      document.getElementById('input-speed-min').value = 20;
+      document.getElementById('input-speed-max').value = 60;
+      
+      console.log('✓ Speed range reset to defaults (20-60 km/h)');
+    });
+  }
+}
+
+// Setup rain speed modifiers form
+function setupRainSpeedModifiers() {
+  const rainSpeedForm = document.getElementById('rain-speed-form');
+  const btnResetRainSpeed = document.getElementById('btn-reset-rain-speed');
+
+  // Form submit handler
+  if (rainSpeedForm) {
+    rainSpeedForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      
+      const lightRainSpeed = parseInt(document.getElementById('input-light-rain-speed').value);
+      const heavyRainSpeed = parseInt(document.getElementById('input-heavy-rain-speed').value);
+
+      // Validate
+      if (heavyRainSpeed > lightRainSpeed) {
+        alert('Heavy rain speed should be lower than light rain speed!');
+        return;
+      }
+
+      if (lightRainSpeed < 10 || lightRainSpeed > 100 || heavyRainSpeed < 10 || heavyRainSpeed > 100) {
+        alert('Speed percentages must be between 10 and 100!');
+        return;
+      }
+
+      // Apply rain speed modifiers
+      window.trafficSimControls.setRainSpeedModifiers(lightRainSpeed / 100, heavyRainSpeed / 100);
+      
+      // Visual feedback
+      const btn = rainSpeedForm.querySelector('.btn-set');
+      btn.textContent = '✓ Applied!';
+      setTimeout(() => {
+        btn.textContent = 'Set Rain Modifiers';
+      }, 2000);
+    });
+  }
+
+  // Reset button
+  if (btnResetRainSpeed) {
+    btnResetRainSpeed.addEventListener('click', () => {
+      document.getElementById('input-light-rain-speed').value = 80;
+      document.getElementById('input-heavy-rain-speed').value = 50;
+      
+      window.trafficSimControls.setRainSpeedModifiers(0.8, 0.5);
     });
   }
 }

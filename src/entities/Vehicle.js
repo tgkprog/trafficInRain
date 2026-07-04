@@ -1,10 +1,11 @@
 export class Vehicle {
-  constructor(config, spawnPosition, destination, id, weatherState = 'none') {
+  constructor(config, spawnPosition, destination, id, weatherState = 'none', rainSpeedModifiers = { light: 0.8, heavy: 0.5 }) {
     this.id = id;
     this.type = config.type;
     this.config = config;
     this.destination = destination;
     this.weatherState = weatherState;
+    this.rainSpeedModifiers = rainSpeedModifiers;
     
     // Physical properties from config
     const pixelScale = 3.5;
@@ -41,15 +42,21 @@ export class Vehicle {
       return this.baseMaxSpeed;
     }
     
-    const rainModifier = this.config.rainModifiers?.[this.weatherState];
-    const speedFactor = rainModifier?.speedFactor || 1.0;
+    // Use custom rain speed modifiers instead of config
+    const speedFactor = this.rainSpeedModifiers[this.weatherState] || 1.0;
     
     return this.baseMaxSpeed * speedFactor;
   }
   
   // Set weather state and update speed
-  setWeatherState(state) {
+  setWeatherState(state, rainSpeedModifiers = null) {
     this.weatherState = state;
+    
+    // Update rain speed modifiers if provided
+    if (rainSpeedModifiers) {
+      this.rainSpeedModifiers = rainSpeedModifiers;
+    }
+    
     this.maxSpeed = this.calculateWeatherModifiedSpeed();
   }
 

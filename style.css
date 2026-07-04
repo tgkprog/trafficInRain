@@ -278,10 +278,10 @@ body {
 
 /* Right Control GUI Container */
 #gui-container {
-  width: 300px;
+  width: 330px;
   background: rgba(17, 24, 39, 0.8);
   border-left: 1px solid var(--border);
-  padding: 10px;
+  padding: 11px;
   overflow-y: auto;
 }
 
@@ -382,6 +382,28 @@ body {
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
   padding: 24px;
+  margin-bottom: 20px;
+}
+
+/* Section Divider and Titles */
+.section-divider {
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--border), transparent);
+  margin: 40px 0 30px 0;
+}
+
+.section-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--accent-cyan);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.section-description {
+  font-size: 0.85rem;
+  color: var(--text-muted);
   margin-bottom: 20px;
 }
 
