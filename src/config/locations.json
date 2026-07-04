@@ -7,14 +7,14 @@
     "lng": 73.8782,
     "spawnRate": 0.7,
     "attractionWeight": 1,
-    "x": 210,
+    "x": 70,
     "y": 950,
     "roadConnection": {"x": 200, "y": 950},
-    "offsetMeters": 10
+    "offsetMeters": 130
   },
   {
     "id": "laxmi_township",
-    "name": "Laxmi Township 3 Kalas",
+    "name": "LT3",
     "type": "residential",
     "lat": 18.5912,
     "lng": 73.8765,
@@ -34,8 +34,8 @@
     "spawnRate": 0.8,
     "attractionWeight": 1,
     "x": 400,
-    "y": 950,
-    "roadConnection": {"x": 550, "y": 950},
+    "y": 750,
+    "roadConnection": {"x": 550, "y": 750},
     "offsetMeters": 150
   },
   {

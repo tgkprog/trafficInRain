@@ -43,7 +43,7 @@
     },
     {
       "id": "access_planet_medical",
-      "name": "Access Road to Planet Medical (10m)",
+      "name": "Access Road to Planet Medical (130m WEST)",
       "from": "planet_junction",
       "to": "planet_medical",
       "widthMeters": 6,
@@ -53,7 +53,8 @@
       "bidirectional": true,
       "waypoints": [
         {"x": 200, "y": 950},
-        {"x": 210, "y": 950}
+        {"x": 135, "y": 950},
+        {"x": 70, "y": 950}
       ],
       "widthPixels": 24,
       "isAccessRoad": true
@@ -77,7 +78,7 @@
     },
     {
       "id": "access_kumar_samrudhi",
-      "name": "Access Road to Kumar Samrudhi (150m WEST)",
+      "name": "Access Road to Kumar Samrudhi (130m WEST)",
       "from": "kumar_junction",
       "to": "kumar_samrudhi",
       "widthMeters": 6,
@@ -87,8 +88,8 @@
       "bidirectional": true,
       "waypoints": [
         {"x": 550, "y": 950},
-        {"x": 475, "y": 950},
-        {"x": 400, "y": 950}
+        {"x": 485, "y": 950},
+        {"x": 420, "y": 950}
       ],
       "widthPixels": 24,
       "isAccessRoad": true
